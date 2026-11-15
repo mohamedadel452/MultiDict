@@ -30,6 +30,11 @@ class OnboardingActivity : AppCompatActivity() {
             R.string.onboard_desc_1
         ),
         OnboardingPage(
+            R.drawable.ic_onboard_smart_ml,
+            R.string.onboard_title_smart_ml,
+            R.string.onboard_desc_smart_ml
+        ),
+        OnboardingPage(
             R.drawable.ic_onboard_2_tabs,
             R.string.onboard_title_2,
             R.string.onboard_desc_2

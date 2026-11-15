@@ -55,22 +55,28 @@ All active dictionary tabs load simultaneously in memory (`ViewPager2` + persist
 | **Audio, Context & Visuals** | **Forvo** (Native pronunciation), **Bilder** (Google Images), **Wikipedia** |
 | **Custom Dictionaries** | Add unlimited custom dictionaries using any URL template with `{q}` |
 
-### 2. ⚡ Smart Search & Text Integration
+### 2. 🎙️📷 Smart Input & On-Device Machine Learning (ML Kit)
+- **Live Voice Search (`DE / EN / AR`)**: Speak words or phrases with real-time partial transcription (`SpeechRecognizer`), an audio-level pulsing halo (`VoicePulseView`), and a one-tap language badge (`DE / EN / AR`) right inside the search bar.
+- **Camera & Gallery OCR Scan**: Take a photo of any book, sign, or screen—or pick an image from your gallery—to run bundled on-device **ML Kit Text Recognition**. Words are highlighted on the image and presented as tappable chips (single-word or multi-word phrase mode).
+- **Smart Language Detection**: Automatically identifies whether your input is German, Arabic, or English (`com.google.mlkit:language-id`), shows a dismissible *"Detected: …"* chip, and auto-switches or suggests the best matching dictionary tab.
+- **Instant On-Device Translation Card**: Displays a collapsible **Quick Translation** card above the dictionary page (`com.google.mlkit:translate`) with offline model management (download/delete German, Arabic, and English packs in Settings).
+
+### 3. ⚡ Smart Search & Text Integration
 - **Live Wiktionary Autocomplete**: Debounced (`300 ms`) suggestions from the German Wiktionary OpenSearch API with bold prefix highlighting.
 - **Global Text Selection (`ACTION_PROCESS_TEXT` & `ACTION_SEND`)**: Select any German word in any browser, PDF reader, or messaging app and tap **MultiDict** in the system popup menu to look it up immediately.
 - **Foreground Clipboard Assistant**: Detects newly copied short German words (1–2 words, ≤ 30 chars) when opening the app and offers a non-intrusive one-tap *"Search for '<word>'?"* Snackbar.
 
-### 3. 🔊 German Pronunciation & Study Tools
+### 4. 🔊 German Pronunciation & Study Tools
 - **Native German TTS (`Locale.GERMAN`)**: One-tap pronunciation from the main toolbar or directly on Flashcards.
 - **Favorites & Offline Personal Notes**: Star words to save them locally and attach personal notes or Arabic translations that work **100% offline**.
 - **3D Interactive Flashcards**: Review saved words with a smooth 3D card-flip animation (`setCameraDistance` + `rotationY`), progress bar, and spaced-repetition style **"I know it"** / **"Review again"** actions.
 - **Search History**: Automatically logs up to 200 searched words (deduplicated, newest first) with one-tap re-search and swipe/clear controls.
 
-### 4. 🧭 First-Run Onboarding & Spotlight Coach Marks
-- **4-Page Welcome Carousel**: Custom vector illustrations, parallax transitions, and elongated pill indicators.
-- **4-Step Interactive Spotlight Tour**: Highlights the Search Bar, Bottom Dictionary Bar, Favorite Star, and Speaker icon with a pulsing crimson ring and smart tooltip card, concluding with a live sample lookup (`"Haus"`).
+### 5. 🧭 First-Run Onboarding & Spotlight Coach Marks
+- **5-Page Welcome Carousel**: Custom vector illustrations (including Voice, Camera OCR & Instant Translate), parallax transitions, and elongated pill indicators.
+- **6-Step Interactive Spotlight Tour**: Highlights the Search Bar, Voice Search (`DE / EN / AR`), Camera OCR Scan, Bottom Dictionary Bar, Favorite Star, and Speaker icon with a pulsing accent ring and smart tooltip card, concluding with a live sample lookup (`"Haus"`).
 
-### 5. 🌍 Full Localization & Customization
+### 6. 🌍 Full Localization & Customization
 - **Per-App Language Selector**: Switch instantaneously between **System default**, **English**, and **العربية** (full RTL mirroring) via `AppCompatDelegate.setApplicationLocales`.
 - **Theme Selector**: Choose between **System default**, **Light**, and **Dark** (with optional Android 12+ Material You Dynamic Colors) applied in `MultiDictApp` before activity creation for zero startup flash.
 - **Dictionary Manager**: Reorder dictionaries via drag-and-drop (`ItemTouchHelper`), toggle visibility, or add custom `{q}` dictionary URLs.
@@ -82,10 +88,12 @@ All active dictionary tabs load simultaneously in memory (`ViewPager2` + persist
 ```mermaid
 flowchart TD
     App["MultiDictApp (Zero-Flash Theme & Locale Init)"] --> Splash["SplashScreen / OnboardingPrefs"]
-    Splash -->|First Launch| Onboarding["OnboardingActivity (4-Page Carousel)"]
-    Splash -->|Returning User| Main["MainActivity (Search + CoachMarks + TTS)"]
+    Splash -->|First Launch| Onboarding["OnboardingActivity (5-Page Carousel)"]
+    Splash -->|Returning User| Main["MainActivity (Search + Voice + CoachMarks + TTS)"]
     Onboarding --> Main
 
+    Main --> SmartML["SmartMlHelper (ML Kit OCR + Language ID + Offline Translation)"]
+    Main --> OcrSheet["OcrScanDialogFragment (Highlighted Image + Tappable Word Chips)"]
     Main --> Pager["ViewPager2 + Smart NestedWebViewHost"]
     Pager --> DictFrag["DictionaryFragment (Persistent WebView + Shimmer + Dark Mode)"]
 
@@ -94,7 +102,7 @@ flowchart TD
     Overlays --> Favorites["FavoritesFragment (Offline Notes + Undo Delete)"]
     Overlays --> Flashcards["FlashcardsFragment (3D Flip Study)"]
     Overlays --> DictOrder["DictionariesOrderFragment (Drag & Custom URL)"]
-    Overlays --> Settings["SettingsFragment (Language, Theme, WebView Controls)"]
+    Overlays --> Settings["SettingsFragment (Language, Theme, ML Models, WebView Controls)"]
     Settings --> About["AboutActivity (Scholarly About & Share)"]
 ```
 

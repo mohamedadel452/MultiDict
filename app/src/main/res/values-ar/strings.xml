@@ -72,31 +72,37 @@
     <string name="error_invalid_dict_url">يجب أن يبدأ الرابط بـ http:// أو https:// ويحتوي على {q}.</string>
     <string name="at_least_one_dictionary">يجب الإبقاء على قاموس واحد مفعل على الأقل.</string>
 
-    <!-- Phase 5: Onboarding & Coach Marks -->
+    <!-- Phase 5 & 9: Onboarding & Coach Marks -->
     <string name="onboard_skip">تخطي</string>
     <string name="onboard_next">التالي</string>
     <string name="onboard_get_started">ابدأ الآن</string>
     <string name="onboard_title_1">كلمة واحدة، في كل القواميس</string>
     <string name="onboard_desc_1">اكتب الكلمة الألمانية مرة واحدة وابحث عنها في جميع القواميس في نفس اللحظة.</string>
+    <string name="onboard_title_smart_ml">بحث صوتي، مسح بالكاميرا وترجمة فورية</string>
+    <string name="onboard_desc_smart_ml">تحدّث بالألمانية أو الإنجليزية أو العربية، أو صوّر أي صفحة كتاب بالكاميرا للضغط على الكلمات مباشرةً مع ترجمة فورية بدون إنترنت.</string>
     <string name="onboard_title_2">انتقل بلمسة واحدة</string>
-    <string name="onboard_desc_2">اضغط أو اسحب الشريط السفلي لمقارنة المعاني والمترادفات وتصريفات الأفعال فوراً.</string>
+    <string name="onboard_desc_2">اضغط أو اسحب الشريط السفلي لمقارنة المعاني والمترادفات وتصريفات الأفعال مع الكشف الذكي التلقائي عن اللغة.</string>
     <string name="onboard_title_3">احفظ وراجع بذكاء</string>
     <string name="onboard_desc_3">احفظ الكلمات في المفضلة مع ملاحظاتك الخاصة، واستمع للنطق الصحيح، وتدرّب بالبطاقات التعليمية.</string>
     <string name="onboard_title_4">هل أنت مستعد للتعلم؟</string>
-    <string name="onboard_desc_4">أتقن المفردات الألمانية بشكل أسرع مع جميع القواميس بين يديك.</string>
+    <string name="onboard_desc_4">أتقن المفردات الألمانية بشكل أسرع بواجهة عربية وإنجليزية كاملة والوضع الداكن وجميع القواميس بين يديك.</string>
 
     <string name="coach_step_counter">%1$d من %2$d</string>
     <string name="coach_skip_tour">تخطي الجولة</string>
     <string name="coach_next">التالي</string>
     <string name="coach_done">تم</string>
-    <string name="coach_title_1">البحث السريع</string>
-    <string name="coach_desc_1">اكتب أي كلمة ألمانية هنا</string>
+    <string name="coach_title_1">البحث السريع والترجمة الفورية</string>
+    <string name="coach_desc_1">اكتب أي كلمة هنا — سيظهر الكشف الذكي عن اللغة وبطاقة الترجمة الفورية تلقائياً أعلى الصفحة.</string>
+    <string name="coach_title_voice">البحث الصوتي (DE / EN / AR)</string>
+    <string name="coach_desc_voice">اضغط على الميكروفون لنطق الكلمة مباشرةً، أو اضغط على زر اللغة (DE / EN / AR) بجواره لتغيير لغة التحدث.</string>
+    <string name="coach_title_ocr">مسح النص بالكاميرا أو المعرض (OCR)</string>
+    <string name="coach_desc_ocr">التقط صورة أو اختر صورة من المعرض، ثم اضغط على أي كلمة أو عبارة محددة للبحث عنها فوراً.</string>
     <string name="coach_title_2">شريط القواميس</string>
-    <string name="coach_desc_2">اضغط على أي قاموس لعرض نفس الكلمة فيه فوراً</string>
-    <string name="coach_title_3">حفظ المفضلة</string>
-    <string name="coach_desc_3">احفظ الكلمات التي تريد مراجعتها لاحقاً</string>
+    <string name="coach_desc_2">اضغط على أي قاموس أو اسحب للمقارنة بين Duden وDWDS وPONS وArabDict وغيرها فوراً.</string>
+    <string name="coach_title_3">حفظ المفضلة والملاحظات</string>
+    <string name="coach_desc_3">احفظ الكلمات المهمة مع ملاحظاتك الخاصة وراجعها في البطاقات التعليمية.</string>
     <string name="coach_title_4">النطق الصوتي</string>
-    <string name="coach_desc_4">استمع إلى النطق الألماني الصحيح للكلمة</string>
+    <string name="coach_desc_4">اضغط على أيقونة السماعة للاستماع إلى النطق الألماني الصحيح للكلمة.</string>
     <string name="sample_word_snackbar">جرّب الضغط على قاموس آخر بالأسفل</string>
     <string name="settings_dynamic_color">استخدام ألوان النظام</string>
     <string name="settings_dynamic_color_sub">تطبيق ألوان خلفية الجهاز تلقائياً (أندرويد 12+)</string>
@@ -117,4 +123,69 @@
     <string name="about_btn_rate">تقييم التطبيق</string>
     <string name="about_share_message">تطبيق MultiDict — اكتب كلمة واحدة وابحث عنها في عدة قواميس موثوقة بضغطة واحدة، مجاني بالكامل وبلا إعلانات.</string>
     <string name="about_footer_copyright">© 2026 م. محمد عادل</string>
+
+    <!-- Phase 9: Voice Search, Camera OCR, Smart Language Detection & On-Device Translation -->
+    <string name="voice_search">البحث الصوتي</string>
+    <string name="voice_lang_chip_desc">تغيير لغة التحدث</string>
+    <string name="voice_lang_dialog_title">لغة التحدث الصوتي</string>
+    <string name="voice_lang_de">الألمانية — Deutsch (DE)</string>
+    <string name="voice_lang_en">الإنجليزية — English (EN)</string>
+    <string name="voice_lang_ar">العربية (AR)</string>
+    <string name="voice_listening_title">جاري الاستماع (%1$s)…</string>
+    <string name="voice_listening_hint">انطق الكلمة أو العبارة الآن…</string>
+    <string name="voice_permission_rationale_title">مطلوب إذن الميكروفون</string>
+    <string name="voice_permission_rationale_msg">يستخدم MultiDict الميكروفون فقط عند ضغطك على زر البحث الصوتي لكتابة الكلمات المنطوقة بدلاً من طباعتها.</string>
+    <string name="voice_permission_continue">متابعة</string>
+    <string name="voice_permission_denied_title">إذن الميكروفون معطّل</string>
+    <string name="voice_permission_denied_msg">لاستخدام البحث الصوتي، يرجى تفعيل إذن الميكروفون من إعدادات التطبيق.</string>
+    <string name="open_app_settings">فتح الإعدادات</string>
+    <string name="voice_error_no_speech">لم يتم التقاط أي صوت. اضغط على الميكروفون للمحاولة مرة أخرى.</string>
+    <string name="voice_error_busy_or_network">خدمة التعرّف الصوتي مشغولة أو غير متصلة حالياً. حاول مرة أخرى.</string>
+    <string name="voice_error_unsupported_lang">حزمة التعرف الصوتي لهذه اللغة غير مثبتة على جهازك.</string>
+
+    <string name="camera_ocr_search">مسح نص بالكاميرا أو من صورة</string>
+    <string name="ocr_source_title">استخراج النص من صورة (OCR)</string>
+    <string name="ocr_take_photo">التقاط صورة بالكاميرا</string>
+    <string name="ocr_pick_gallery">اختيار صورة من المعرض</string>
+    <string name="ocr_sheet_title">اضغط على أي كلمة للبحث عنها</string>
+    <string name="ocr_phrase_mode_label">تحديد عدة كلمات (بحث عن عبارة)</string>
+    <string name="ocr_search_phrase_btn">بحث عن \"%1$s\"</string>
+    <string name="ocr_scanning_progress">جاري التعرّف على النص داخل الجهاز…</string>
+    <string name="ocr_empty_result">لم يتم العثور على نص واضح في هذه الصورة.</string>
+    <string name="ocr_error_result">تعذر قراءة الصورة. يرجى تجربة صورة أخرى.</string>
+    <string name="close">إغلاق</string>
+
+    <string name="detected_language_format">اللغة المكتشفة: %1$s</string>
+    <string name="detected_language_switch_action">الانتقال إلى %1$s</string>
+    <string name="dismiss">إخفاء</string>
+    <string name="lang_name_de">الألمانية</string>
+    <string name="lang_name_en">الإنجليزية</string>
+    <string name="lang_name_ar">العربية</string>
+
+    <string name="quick_translation_title">ترجمة فورية (%1$s ← %2$s)</string>
+    <string name="quick_translation_title_short">ترجمة فورية</string>
+    <string name="quick_translation_disclaimer">ترجمة آلية، يرجى التحقق من القاموس</string>
+    <string name="quick_translation_translating">جاري الترجمة على الجهاز…</string>
+    <string name="quick_translation_download_prompt">يلزم تنزيل نموذج الترجمة بدون إنترنت (~30 MB)</string>
+    <string name="quick_translation_download_btn">تنزيل</string>
+    <string name="model_download_dialog_title">تنزيل نموذج الترجمة بدون إنترنت؟</string>
+    <string name="model_download_dialog_msg">سيتم تنزيل حزمة الترجمة للغة (%1$s) بحجم ~30 ميجابايت (يُفضّل عبر Wi-Fi). بعد التنزيل تعمل الترجمة الفورية بدون إنترنت نهائياً.</string>
+    <string name="model_downloading_progress">جاري تنزيل نموذج الترجمة (~30 MB)…</string>
+    <string name="model_download_success">تم تجهيز نموذج الترجمة بدون إنترنت بنجاح.</string>
+    <string name="model_download_error">تعذر تنزيل النموذج. يرجى التحقق من الاتصال بالإنترنت.</string>
+    <string name="model_deleted_toast">تم حذف نموذج اللغة (%1$s) من الجهاز.</string>
+
+    <string name="settings_category_smart_ml">الإدخال الذكي والذكاء الاصطناعي (On-Device AI)</string>
+    <string name="settings_voice_auto_search">البحث التلقائي بعد الإدخال الصوتي</string>
+    <string name="settings_voice_auto_search_sub">بدء البحث فور انتهاء نطق الكلمة عبر الميكروفون</string>
+    <string name="settings_smart_lang_detect">الكشف الذكي عن اللغة</string>
+    <string name="settings_smart_lang_detect_sub">التعرف التلقائي على الألمانية والعربية والإنجليزية واقتراح القاموس المناسب</string>
+    <string name="settings_quick_translate_enabled">إظهار بطاقة الترجمة الفورية</string>
+    <string name="settings_quick_translate_enabled_sub">عرض ترجمة فورية قابلة للطي أعلى صفحة القاموس</string>
+    <string name="settings_translation_target_lang">اللغة الهدف للترجمة الفورية</string>
+    <string name="settings_translation_target_sub_format">اللغة الهدف: %1$s</string>
+    <string name="settings_manage_ml_models">نماذج الترجمة بدون إنترنت</string>
+    <string name="settings_manage_ml_models_sub">تنزيل أو حذف حزم الألمانية والعربية والإنجليزية المحفوظة على الجهاز</string>
+    <string name="model_status_downloaded">محمّل على الجهاز (~30 MB) • اضغط للحذف</string>
+    <string name="model_status_not_downloaded">غير محمّل • اضغط للتنزيل (~30 MB)</string>
 </resources>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/surface"
+    android:orientation="vertical"
+    android:padding="@dimen/space_20">
+
+    <!-- Header Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="@dimen/icon_size_standard"
+            android:layout_height="@dimen/icon_size_standard"
+            android:contentDescription="@string/camera_ocr_search"
+            android:src="@drawable/ic_camera"
+            app:tint="@color/primary" />
+
+        <TextView
+            android:id="@+id/tvOcrTitle"
+            style="@style/TextAppearance.MultiDict.Title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_10"
+            android:layout_weight="1"
+            android:text="@string/ocr_sheet_title" />
+
+        <ImageButton
+            android:id="@+id/btnCloseOcr"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/close"
+            android:src="@drawable/ic_clear" />
+    </LinearLayout>
+
+    <!-- Scanned Image Preview + Tappable Highlighted Word Boxes -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="190dp"
+        android:layout_marginTop="@dimen/space_12"
+        app:cardBackgroundColor="@color/surface_container"
+        app:cardCornerRadius="@dimen/radius_card"
+        app:cardElevation="@dimen/elevation_none"
+        app:strokeColor="@color/outline"
+        app:strokeWidth="@dimen/hairline">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/ivOcrPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/camera_ocr_search"
+                android:scaleType="fitCenter" />
+
+            <com.example.multidict.OcrHighlightOverlayView
+                android:id="@+id/ocrHighlightOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Multi-word Phrase Toggle Row -->
+    <LinearLayout
+        android:id="@+id/rowPhraseMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_12"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/touch_target_min"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_4"
+        android:paddingEnd="@dimen/space_4">
+
+        <TextView
+            style="@style/TextAppearance.MultiDict.BodyBold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/ocr_phrase_mode_label" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/swPhraseMode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:focusable="false" />
+    </LinearLayout>
+
+    <!-- Loading State -->
+    <LinearLayout
+        android:id="@+id/layoutOcrLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_16"
+        android:layout_marginBottom="@dimen/space_16"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:indeterminateTint="@color/primary" />
+
+        <TextView
+            style="@style/TextAppearance.MultiDict.Caption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_8"
+            android:text="@string/ocr_scanning_progress" />
+    </LinearLayout>
+
+    <!-- Empty / Error State -->
+    <TextView
+        android:id="@+id/tvOcrEmpty"
+        style="@style/TextAppearance.MultiDict.Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_16"
+        android:layout_marginBottom="@dimen/space_16"
+        android:gravity="center"
+        android:text="@string/ocr_empty_result"
+        android:textColor="@color/text_secondary"
+        android:visibility="gone" />
+
+    <!-- Scrollable Tappable Word Chips -->
+    <ScrollView
+        android:id="@+id/scrollOcrChips"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/space_8"
+        android:layout_weight="1"
+        android:maxHeight="220dp"
+        android:visibility="gone">
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupOcrWords"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:chipSpacingHorizontal="@dimen/space_8"
+            app:chipSpacingVertical="@dimen/space_6" />
+    </ScrollView>
+
+    <!-- Search Selected Phrase Button (visible when multiple words are selected) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSearchPhrase"
+        style="@style/Widget.MultiDict.Button.Filled"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height_large"
+        android:layout_marginTop="@dimen/space_12"
+        android:visibility="gone" />
+
+</LinearLayout>

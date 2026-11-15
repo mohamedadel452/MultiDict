@@ -65,8 +65,8 @@
         android:outlineSpotShadowColor="@color/spot_shadow"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="@dimen/space_16"
-        android:paddingEnd="@dimen/space_8"
+        android:paddingStart="@dimen/space_12"
+        android:paddingEnd="@dimen/space_6"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -90,31 +90,271 @@
             android:importantForAutofill="no"
             android:inputType="text"
             android:maxLines="1"
-            android:paddingStart="@dimen/space_12"
-            android:paddingEnd="@dimen/space_8"
+            android:paddingStart="@dimen/space_8"
+            android:paddingEnd="@dimen/space_4"
             android:singleLine="true"
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_hint" />
 
         <ImageButton
             android:id="@+id/btnClear"
-            android:layout_width="@dimen/touch_target_min"
+            android:layout_width="40dp"
             android:layout_height="@dimen/touch_target_min"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/clear_search"
             android:src="@drawable/ic_clear"
             android:visibility="gone" />
 
+        <!-- Spoken Language Chip (DE / EN / AR) next to Microphone -->
+        <FrameLayout
+            android:id="@+id/btnVoiceLangChip"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/touch_target_min"
+            android:minWidth="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/voice_lang_chip_desc"
+            android:paddingStart="@dimen/space_2"
+            android:paddingEnd="@dimen/space_2">
+
+            <TextView
+                android:id="@+id/tvVoiceLangChip"
+                style="@style/TextAppearance.MultiDict.Badge"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_lang_chip"
+                android:gravity="center"
+                android:paddingStart="@dimen/space_6"
+                android:paddingEnd="@dimen/space_6"
+                android:text="DE"
+                android:textColor="@color/primary" />
+        </FrameLayout>
+
+        <!-- Voice Search Microphone Button -->
+        <ImageButton
+            android:id="@+id/btnVoiceMic"
+            android:layout_width="40dp"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/voice_search"
+            android:src="@drawable/ic_mic" />
+
+        <!-- Camera / Image OCR Search Button -->
+        <ImageButton
+            android:id="@+id/btnCameraOcr"
+            android:layout_width="40dp"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/camera_ocr_search"
+            android:src="@drawable/ic_camera" />
+
         <ImageButton
             android:id="@+id/btnSearch"
             android:layout_width="@dimen/search_btn_size"
             android:layout_height="@dimen/search_btn_size"
+            android:layout_marginStart="@dimen/space_2"
             android:minWidth="@dimen/touch_target_min"
             android:minHeight="@dimen/touch_target_min"
             android:background="@drawable/bg_search_button"
             android:contentDescription="@string/search_action"
             android:src="@drawable/ic_search_on_primary"
             android:stateListAnimator="@animator/press_scale" />
+    </LinearLayout>
+
+    <!-- 2B. Phase 9 Smart Assist Area: Detected Language Chip + Collapsible Quick Translation Card -->
+    <LinearLayout
+        android:id="@+id/smartAssistContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_padding_horizontal"
+        android:layout_marginEnd="@dimen/screen_padding_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/searchRow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Dismissible Smart Language Detection Chip ("Detected: German") -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardDetectedLang"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/surface_container_high"
+            app:cardCornerRadius="@dimen/radius_pill"
+            app:cardElevation="@dimen/elevation_none"
+            app:strokeColor="@color/outline"
+            app:strokeWidth="@dimen/hairline">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/space_12"
+                android:paddingEnd="@dimen/space_6">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:contentDescription="@string/settings_smart_lang_detect"
+                    android:src="@drawable/ic_language"
+                    app:tint="@color/primary" />
+
+                <TextView
+                    android:id="@+id/tvDetectedLanguage"
+                    style="@style/TextAppearance.MultiDict.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_6"
+                    android:textColor="@color/text_primary" />
+
+                <TextView
+                    android:id="@+id/btnSwitchDetectedDict"
+                    style="@style/TextAppearance.MultiDict.Badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="@dimen/space_8"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:paddingStart="@dimen/space_6"
+                    android:paddingEnd="@dimen/space_6"
+                    android:textColor="@color/primary"
+                    android:visibility="gone" />
+
+                <ImageButton
+                    android:id="@+id/btnDismissDetectedLang"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_marginStart="@dimen/space_2"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/dismiss"
+                    android:padding="5dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_clear" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Collapsible Instant On-Device Quick Translation Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardQuickTranslation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_6"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/surface_container"
+            app:cardCornerRadius="@dimen/radius_card"
+            app:cardElevation="@dimen/elevation_none"
+            app:strokeColor="@color/outline"
+            app:strokeWidth="@dimen/hairline">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Collapsible Header Row -->
+                <LinearLayout
+                    android:id="@+id/rowQuickTranslationHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="40dp"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/space_12"
+                    android:paddingTop="@dimen/space_6"
+                    android:paddingEnd="@dimen/space_10"
+                    android:paddingBottom="@dimen/space_6">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:contentDescription="@string/quick_translation_title_short"
+                        android:src="@drawable/ic_translate" />
+
+                    <TextView
+                        android:id="@+id/tvQuickTranslationHeader"
+                        style="@style/TextAppearance.MultiDict.Caption"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_8"
+                        android:layout_weight="1"
+                        android:text="@string/quick_translation_title_short"
+                        android:textColor="@color/text_secondary" />
+
+                    <ImageView
+                        android:id="@+id/ivQuickTranslateChevron"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@string/quick_translation_title_short"
+                        android:src="@drawable/ic_chevron_down" />
+                </LinearLayout>
+
+                <!-- Collapsible Body -->
+                <LinearLayout
+                    android:id="@+id/layoutQuickTranslationBody"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/space_12"
+                    android:paddingEnd="@dimen/space_12"
+                    android:paddingBottom="@dimen/space_8">
+
+                    <TextView
+                        android:id="@+id/tvQuickTranslationResult"
+                        style="@style/TextAppearance.MultiDict.BodyBold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/text_primary" />
+
+                    <!-- Shown when on-device model is not yet downloaded -->
+                    <LinearLayout
+                        android:id="@+id/layoutQuickTranslateDownload"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:id="@+id/tvQuickTranslateDownloadPrompt"
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/quick_translation_download_prompt"
+                            android:textColor="@color/text_secondary" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnQuickTranslateDownload"
+                            style="@style/Widget.MultiDict.Button.Tonal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="36dp"
+                            android:layout_marginStart="@dimen/space_8"
+                            android:insetTop="0dp"
+                            android:insetBottom="0dp"
+                            android:paddingStart="@dimen/space_12"
+                            android:paddingEnd="@dimen/space_12"
+                            android:text="@string/quick_translation_download_btn"
+                            android:textSize="12sp"
+                            app:icon="@drawable/ic_download"
+                            app:iconSize="16dp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvQuickTranslationDisclaimer"
+                        style="@style/TextAppearance.MultiDict.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:text="@string/quick_translation_disclaimer"
+                        android:textColor="@color/text_hint"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
     </LinearLayout>
 
     <!-- 3. WebView Card Container: rounded 20dp corners, slightly inset from screen edges -->
@@ -124,14 +364,14 @@
         android:layout_height="0dp"
         android:layout_marginStart="@dimen/space_8"
         android:layout_marginEnd="@dimen/space_8"
-        android:layout_marginTop="@dimen/space_10"
+        android:layout_marginTop="@dimen/space_8"
         android:layout_marginBottom="@dimen/space_8"
         app:cardBackgroundColor="@color/surface"
         app:cardCornerRadius="@dimen/radius_card"
         app:cardElevation="@dimen/elevation_none"
         app:strokeColor="@color/outline"
         app:strokeWidth="@dimen/hairline"
-        app:layout_constraintTop_toBottomOf="@id/searchRow"
+        app:layout_constraintTop_toBottomOf="@id/smartAssistContainer"
         app:layout_constraintBottom_toTopOf="@id/bottomBarCard"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -204,7 +444,7 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Full-screen container for History, Favorites, Flashcards, Wörterbücher & Einstellungen fragments -->
+    <!-- 6. Full-screen container for History, Favorites, Flashcards, Wörterbücher & Einstellungen fragments -->
     <FrameLayout
         android:id="@+id/overlayFragmentContainer"
         android:layout_width="0dp"
@@ -215,7 +455,92 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Interactive Coach Mark Tour Overlay -->
+    <!-- 7. Voice Search Listening Overlay with Pulsing Audio Halo & Live Transcript -->
+    <FrameLayout
+        android:id="@+id/voiceListeningOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/scrim_backdrop"
+        android:clickable="true"
+        android:elevation="@dimen/elevation_coach"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="@dimen/space_16"
+            android:layout_marginEnd="@dimen/space_16"
+            android:layout_marginBottom="@dimen/space_24"
+            app:cardBackgroundColor="@color/surface"
+            app:cardCornerRadius="@dimen/radius_card"
+            app:cardElevation="@dimen/elevation_modal"
+            app:strokeColor="@color/outline"
+            app:strokeWidth="@dimen/hairline">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="@dimen/space_24">
+
+                <TextView
+                    android:id="@+id/tvVoiceListeningTitle"
+                    style="@style/TextAppearance.MultiDict.Title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/voice_search" />
+
+                <FrameLayout
+                    android:layout_width="112dp"
+                    android:layout_height="112dp"
+                    android:layout_marginTop="@dimen/space_16">
+
+                    <com.example.multidict.VoicePulseView
+                        android:id="@+id/voicePulseView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_gravity="center"
+                        android:contentDescription="@string/voice_search"
+                        android:src="@drawable/ic_mic"
+                        app:tint="@color/on_primary" />
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/tvVoiceLiveTranscript"
+                    style="@style/TextAppearance.MultiDict.BodyBold"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:gravity="center"
+                    android:minLines="2"
+                    android:text="@string/voice_listening_hint"
+                    android:textColor="@color/text_primary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelVoice"
+                    style="@style/Widget.MultiDict.Button.Outlined"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/button_height"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:paddingStart="@dimen/space_24"
+                    android:paddingEnd="@dimen/space_24"
+                    android:text="@string/cancel" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </FrameLayout>
+
+    <!-- 8. Interactive Coach Mark Tour Overlay -->
     <com.example.multidict.CoachMarkOverlay
         android:id="@+id/coachMarkOverlay"
         android:layout_width="0dp"

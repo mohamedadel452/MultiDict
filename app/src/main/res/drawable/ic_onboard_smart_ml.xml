@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Soft backdrop circle -->
+    <path
+        android:fillColor="@color/primary_container"
+        android:pathData="M100,100m-76,0a76,76 0,1 1,152 0a76,76 0,1 1,-152 0" />
+
+    <!-- Scanned document / OCR card -->
+    <path
+        android:fillColor="@color/surface"
+        android:strokeColor="@color/outline"
+        android:strokeWidth="2"
+        android:pathData="M48,46L134,46A12,12 0,0 1,146 58L146,134A12,12 0,0 1,134 146L48,146A12,12 0,0 1,36 134L36,58A12,12 0,0 1,48 46z" />
+
+    <!-- OCR corner brackets in Indigo -->
+    <path
+        android:strokeColor="@color/primary"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:pathData="M48,68L48,58L58,58M124,58L134,58L134,68M48,122L48,132L58,132" />
+
+    <!-- Highlighted OCR word chip inside document -->
+    <path
+        android:fillColor="@color/primary_container"
+        android:pathData="M56,70L116,70A6,6 0,0 1,122 76L122,86A6,6 0,0 1,116 92L56,92A6,6 0,0 1,50 86L50,76A6,6 0,0 1,56 70z" />
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M58,78h48v6h-48z" />
+    <path
+        android:fillColor="@color/outline"
+        android:pathData="M54,102h64v5h-64zM54,114h46v5h-46z" />
+
+    <!-- Floating Voice Microphone Badge in Soft Coral -->
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M140,130m-28,0a28,28 0,1 1,56 0a28,28 0,1 1,-56 0" />
+    <path
+        android:fillColor="@color/on_primary"
+        android:pathData="M140,114A6,6 0,0 1,146 120L146,130A6,6 0,0 1,134 130L134,120A6,6 0,0 1,140 114z" />
+    <path
+        android:strokeColor="@color/on_primary"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M129,129A11,11 0,0 0,151 129M140,140L140,146M134,146L146,146" />
+</vector>

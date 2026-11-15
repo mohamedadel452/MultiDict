@@ -35,7 +35,21 @@ object AppPreferences {
     private const val KEY_HISTORY_JSON = "pref_history_json"
     private const val KEY_FAVORITES_JSON = "pref_favorites_json"
     private const val KEY_WORD_NOTES_JSON = "pref_word_notes_json"
+    private const val KEY_VOICE_LANG = "pref_voice_lang"
+    private const val KEY_VOICE_AUTO_SEARCH = "pref_voice_auto_search"
+    private const val KEY_SMART_LANG_DETECT = "pref_smart_lang_detect"
+    private const val KEY_QUICK_TRANSLATE_ENABLED = "pref_quick_translate_enabled"
+    private const val KEY_QUICK_TRANSLATE_EXPANDED = "pref_quick_translate_expanded"
+    private const val KEY_TRANSLATE_TARGET_LANG = "pref_translate_target_lang"
     private const val MAX_HISTORY_SIZE = 200
+
+    const val VOICE_LANG_DE = "de-DE"
+    const val VOICE_LANG_EN = "en-US"
+    const val VOICE_LANG_AR = "ar-SA"
+
+    const val ML_LANG_DE = "de"
+    const val ML_LANG_EN = "en"
+    const val ML_LANG_AR = "ar"
 
     fun getThemeMode(context: Context): Int = AppearancePrefs.getThemeMode(context)
 
@@ -137,6 +151,96 @@ object AppPreferences {
             .edit()
             .putBoolean(KEY_AUTO_SEARCH_TABS, enabled)
             .apply()
+    }
+
+    // --- Phase 9: Voice Search, Smart Language Detection & On-Device Translation Prefs ---
+
+    fun getVoiceLanguage(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_VOICE_LANG, VOICE_LANG_DE) ?: VOICE_LANG_DE
+    }
+
+    fun setVoiceLanguage(context: Context, langTag: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_VOICE_LANG, langTag)
+            .apply()
+    }
+
+    fun getVoiceLanguageShortCode(context: Context): String {
+        return when (getVoiceLanguage(context)) {
+            VOICE_LANG_EN -> "EN"
+            VOICE_LANG_AR -> "AR"
+            else -> "DE"
+        }
+    }
+
+    fun isVoiceAutoSearchEnabled(context: Context): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_VOICE_AUTO_SEARCH, true)
+    }
+
+    fun setVoiceAutoSearchEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_VOICE_AUTO_SEARCH, enabled)
+            .apply()
+    }
+
+    fun isSmartLanguageDetectionEnabled(context: Context): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_SMART_LANG_DETECT, true)
+    }
+
+    fun setSmartLanguageDetectionEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_SMART_LANG_DETECT, enabled)
+            .apply()
+    }
+
+    fun isQuickTranslationEnabled(context: Context): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_QUICK_TRANSLATE_ENABLED, true)
+    }
+
+    fun setQuickTranslationEnabled(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_QUICK_TRANSLATE_ENABLED, enabled)
+            .apply()
+    }
+
+    fun isQuickTranslationExpanded(context: Context): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_QUICK_TRANSLATE_EXPANDED, true)
+    }
+
+    fun setQuickTranslationExpanded(context: Context, expanded: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_QUICK_TRANSLATE_EXPANDED, expanded)
+            .apply()
+    }
+
+    fun getTranslationTargetLanguage(context: Context): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString(KEY_TRANSLATE_TARGET_LANG, ML_LANG_AR) ?: ML_LANG_AR
+    }
+
+    fun setTranslationTargetLanguage(context: Context, langCode: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_TRANSLATE_TARGET_LANG, langCode)
+            .apply()
+    }
+
+    fun getMlLanguageDisplayName(context: Context, langCode: String): String {
+        return when (langCode.lowercase()) {
+            ML_LANG_AR -> context.getString(R.string.lang_name_ar)
+            ML_LANG_EN -> context.getString(R.string.lang_name_en)
+            else -> context.getString(R.string.lang_name_de)
+        }
     }
 
     /**

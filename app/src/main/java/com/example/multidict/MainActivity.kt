@@ -1,13 +1,20 @@
 package com.example.multidict
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,9 +26,17 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.CookieManager
 import android.webkit.WebStorage
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -35,11 +50,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.multidict.databinding.ActivityMainBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.transition.MaterialFadeThrough
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.Locale
 import kotlin.math.abs
 
@@ -62,6 +79,63 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var autoSearchRunnable: Runnable? = null
     private var suggestionJob: Job? = null
+    private var smartMlJob: Job? = null
+
+    // Phase 9: Voice Search & OCR state
+    private var speechRecognizer: SpeechRecognizer? = null
+    private var isVoiceListening: Boolean = false
+    private var hasRequestedAudioPermissionBefore: Boolean = false
+    private var pendingCameraPhotoUri: Uri? = null
+    private var dismissedDetectedWord: String = ""
+    private var lastDetectedLangCode: String = AppPreferences.ML_LANG_DE
+
+    private val requestAudioPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                startVoiceListening()
+            } else {
+                val showRationale = shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)
+                if (!showRationale && hasRequestedAudioPermissionBefore) {
+                    showAudioPermissionSettingsDialog()
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        R.string.voice_permission_denied_msg,
+                        Snackbar.LENGTH_LONG
+                    ).setAnchorView(binding.bottomBarCard)
+                        .setAction(R.string.open_app_settings) {
+                            openAppPermissionSettings()
+                        }.show()
+                }
+            }
+        }
+
+    private val voiceRecognizerIntentLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            hideVoiceListeningOverlay()
+            if (result.resultCode == Activity.RESULT_OK) {
+                val matches = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                val spoken = matches?.firstOrNull()?.trim().orEmpty()
+                if (spoken.isNotEmpty()) {
+                    applyVoiceResult(spoken)
+                }
+            }
+        }
+
+    private val takePictureLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            val uri = pendingCameraPhotoUri
+            if (success && uri != null) {
+                openOcrScanSheet(uri)
+            }
+        }
+
+    private val pickMediaLauncher =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            if (uri != null) {
+                openOcrScanSheet(uri)
+            }
+        }
 
     companion object {
         private const val PREFS_NAME = "multidict_prefs"
@@ -99,11 +173,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         setupToolbar()
         setupSuggestionsList()
         setupSearchRow()
+        setupSmartInputAndMlUi()
         setupBottomTabs()
         setupViewPager()
         setupBackNavigation()
 
         handleIncomingIntent(intent)
+        if (currentWord.isNotBlank()) {
+            triggerSmartMlAnalysis(currentWord, allowAutoSwitchTab = false)
+        }
     }
 
     private fun setupEdgeToEdgeInsets() {
@@ -133,6 +211,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         ) {
             startCoachMarksTourIfNeeded()
         }
+    }
+
+    override fun onStop() {
+        if (isVoiceListening) {
+            stopVoiceListening()
+        }
+        super.onStop()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -456,6 +541,16 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     description = getString(R.string.coach_desc_1)
                 ),
                 CoachMarkStep(
+                    targetProvider = { binding.btnVoiceMic },
+                    title = getString(R.string.coach_title_voice),
+                    description = getString(R.string.coach_desc_voice)
+                ),
+                CoachMarkStep(
+                    targetProvider = { binding.btnCameraOcr },
+                    title = getString(R.string.coach_title_ocr),
+                    description = getString(R.string.coach_desc_ocr)
+                ),
+                CoachMarkStep(
                     targetProvider = { binding.bottomBarCard },
                     title = getString(R.string.coach_title_2),
                     description = getString(R.string.coach_desc_2)
@@ -499,6 +594,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         updateToolbarTitle()
         updateFavoriteIcon()
         savePreferences()
+        triggerSmartMlAnalysis(SAMPLE_WORD, allowAutoSwitchTab = false)
         loadWordInAllFragments()
 
         Snackbar.make(
@@ -678,6 +774,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                             updateToolbarTitle()
                             updateFavoriteIcon()
                             savePreferences()
+                            triggerSmartMlAnalysis(currentWord, allowAutoSwitchTab = true)
                             if (AppPreferences.isAutoSearchTabsEnabled(this@MainActivity)) {
                                 loadWordInAllFragments()
                             } else {
@@ -744,6 +841,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         updateToolbarTitle()
         updateFavoriteIcon()
         savePreferences()
+
+        if (currentWord.isNotEmpty()) {
+            triggerSmartMlAnalysis(currentWord, allowAutoSwitchTab = true)
+        }
 
         if (hideSoftKeyboard) {
             hideKeyboard()
@@ -890,6 +991,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun setupBackNavigation() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
+                // Close voice listening overlay if active
+                if (binding.voiceListeningOverlay.visibility == View.VISIBLE) {
+                    stopVoiceListening()
+                    return
+                }
                 // Close autocomplete suggestions list first if visible
                 if (binding.cardSuggestions.visibility == View.VISIBLE) {
                     hideSuggestions()
@@ -923,9 +1029,581 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         imm?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
     }
 
+    // =========================================================================
+    // Phase 9: Voice Search, Camera OCR, Smart Language Detection & Translation
+    // =========================================================================
+
+    private fun setupSmartInputAndMlUi() {
+        updateVoiceLanguageChipLabel()
+        syncQuickTranslationExpandUi(animate = false)
+
+        // 1. Spoken language chip (DE / EN / AR)
+        binding.btnVoiceLangChip.setOnClickListener {
+            AppPreferences.vibrateIfEnabled(it)
+            showVoiceLanguagePickerDialog()
+        }
+
+        // 2. Voice search microphone button
+        binding.btnVoiceMic.setOnClickListener {
+            if (AppPreferences.isVibrateOnClickEnabled(this)) {
+                it.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+            }
+            AppPreferences.vibrateIfEnabled(it)
+            checkAudioPermissionAndStartVoice()
+        }
+
+        // 3. Cancel voice listening button & backdrop
+        binding.btnCancelVoice.setOnClickListener {
+            AppPreferences.vibrateIfEnabled(it)
+            stopVoiceListening()
+        }
+        binding.voiceListeningOverlay.setOnClickListener {
+            stopVoiceListening()
+        }
+
+        // 4. Camera / Image OCR button
+        binding.btnCameraOcr.setOnClickListener {
+            AppPreferences.vibrateIfEnabled(it)
+            showOcrSourcePickerDialog()
+        }
+
+        // 5. Dismissible Detected Language Chip
+        binding.btnDismissDetectedLang.setOnClickListener {
+            AppPreferences.vibrateIfEnabled(it)
+            dismissedDetectedWord = currentWord
+            binding.cardDetectedLang.visibility = View.GONE
+        }
+
+        // 6. Collapsible Quick Translation Card Header
+        binding.rowQuickTranslationHeader.setOnClickListener {
+            AppPreferences.vibrateIfEnabled(it)
+            val newExpanded = !AppPreferences.isQuickTranslationExpanded(this)
+            AppPreferences.setQuickTranslationExpanded(this, newExpanded)
+            syncQuickTranslationExpandUi(animate = true)
+        }
+
+        // 7. Download On-Device Model button inside Quick Translation Card
+        binding.btnQuickTranslateDownload.setOnClickListener {
+            AppPreferences.vibrateIfEnabled(it)
+            val targetLang = resolveEffectiveTargetLanguage(lastDetectedLangCode)
+            val pairLabel = "${AppPreferences.getMlLanguageDisplayName(this, lastDetectedLangCode)} ↔ " +
+                AppPreferences.getMlLanguageDisplayName(this, targetLang)
+            promptAndDownloadPairModels(lastDetectedLangCode, targetLang, pairLabel)
+        }
+    }
+
+    private fun updateVoiceLanguageChipLabel() {
+        binding.tvVoiceLangChip.text = AppPreferences.getVoiceLanguageShortCode(this)
+    }
+
+    private fun showVoiceLanguagePickerDialog() {
+        val options = arrayOf(
+            getString(R.string.voice_lang_de),
+            getString(R.string.voice_lang_en),
+            getString(R.string.voice_lang_ar)
+        )
+        val tags = arrayOf(
+            AppPreferences.VOICE_LANG_DE,
+            AppPreferences.VOICE_LANG_EN,
+            AppPreferences.VOICE_LANG_AR
+        )
+        val current = AppPreferences.getVoiceLanguage(this)
+        val checkedIdx = tags.indexOf(current).takeIf { it >= 0 } ?: 0
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.voice_lang_dialog_title)
+            .setSingleChoiceItems(options, checkedIdx) { dialog, which ->
+                val chosen = tags.getOrElse(which) { AppPreferences.VOICE_LANG_DE }
+                AppPreferences.setVoiceLanguage(this, chosen)
+                updateVoiceLanguageChipLabel()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun checkAudioPermissionAndStartVoice() {
+        hideKeyboard()
+        hideSuggestions()
+
+        val granted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (granted) {
+            startVoiceListening()
+            return
+        }
+
+        if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO) ||
+            !hasRequestedAudioPermissionBefore
+        ) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.voice_permission_rationale_title)
+                .setMessage(R.string.voice_permission_rationale_msg)
+                .setPositiveButton(R.string.voice_permission_continue) { _, _ ->
+                    hasRequestedAudioPermissionBefore = true
+                    requestAudioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        } else {
+            showAudioPermissionSettingsDialog()
+        }
+    }
+
+    private fun showAudioPermissionSettingsDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.voice_permission_denied_title)
+            .setMessage(R.string.voice_permission_denied_msg)
+            .setPositiveButton(R.string.open_app_settings) { _, _ ->
+                openAppPermissionSettings()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun openAppPermissionSettings() {
+        try {
+            val intent = Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.fromParts("package", packageName, null)
+            )
+            startActivity(intent)
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun startVoiceListening() {
+        val voiceLangTag = AppPreferences.getVoiceLanguage(this)
+        val shortCode = AppPreferences.getVoiceLanguageShortCode(this)
+
+        val recognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, voiceLangTag)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, voiceLangTag)
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3)
+        }
+
+        showVoiceListeningOverlay(shortCode)
+
+        if (!SpeechRecognizer.isRecognitionAvailable(this)) {
+            try {
+                voiceRecognizerIntentLauncher.launch(recognizerIntent)
+            } catch (_: Exception) {
+                hideVoiceListeningOverlay()
+                Toast.makeText(this, R.string.voice_error_busy_or_network, Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
+
+        try {
+            speechRecognizer?.destroy()
+            speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this).apply {
+                setRecognitionListener(object : RecognitionListener {
+                    override fun onReadyForSpeech(params: Bundle?) {}
+                    override fun onBeginningOfSpeech() {}
+                    override fun onRmsChanged(rmsdB: Float) {
+                        if (::binding.isInitialized && isVoiceListening) {
+                            binding.voicePulseView.updateRmsLevel(rmsdB)
+                        }
+                    }
+
+                    override fun onBufferReceived(buffer: ByteArray?) {}
+                    override fun onEndOfSpeech() {}
+
+                    override fun onError(error: Int) {
+                        if (!isVoiceListening) return
+                        hideVoiceListeningOverlay()
+                        val msgRes = when (error) {
+                            SpeechRecognizer.ERROR_NO_MATCH,
+                            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> R.string.voice_error_no_speech
+                            SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED,
+                            SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE -> R.string.voice_error_unsupported_lang
+                            else -> R.string.voice_error_busy_or_network
+                        }
+                        Snackbar.make(binding.root, msgRes, Snackbar.LENGTH_SHORT)
+                            .setAnchorView(binding.bottomBarCard)
+                            .show()
+                    }
+
+                    override fun onResults(results: Bundle?) {
+                        hideVoiceListeningOverlay()
+                        val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        val spoken = matches?.firstOrNull()?.trim().orEmpty()
+                        if (spoken.isNotEmpty()) {
+                            applyVoiceResult(spoken)
+                        } else {
+                            Snackbar.make(binding.root, R.string.voice_error_no_speech, Snackbar.LENGTH_SHORT)
+                                .setAnchorView(binding.bottomBarCard)
+                                .show()
+                        }
+                    }
+
+                    override fun onPartialResults(partialResults: Bundle?) {
+                        val partial = partialResults
+                            ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                            ?.firstOrNull()
+                            ?.trim()
+                            .orEmpty()
+                        if (partial.isNotEmpty() && ::binding.isInitialized && isVoiceListening) {
+                            binding.tvVoiceLiveTranscript.text = partial
+                            suppressSuggestions = true
+                            binding.etSearch.setText(partial)
+                            binding.etSearch.setSelection(partial.length)
+                            suppressSuggestions = false
+                            updateClearButtonVisibility(true)
+                        }
+                    }
+
+                    override fun onEvent(eventType: Int, params: Bundle?) {}
+                })
+                startListening(recognizerIntent)
+            }
+        } catch (_: Exception) {
+            // Fallback to system RecognizerIntent activity if direct SpeechRecognizer fails
+            try {
+                voiceRecognizerIntentLauncher.launch(recognizerIntent)
+            } catch (_: Exception) {
+                hideVoiceListeningOverlay()
+                Toast.makeText(this, R.string.voice_error_busy_or_network, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun applyVoiceResult(spokenText: String) {
+        val cleaned = spokenText.trim()
+        if (cleaned.isEmpty()) return
+
+        suppressSuggestions = true
+        binding.etSearch.setText(cleaned)
+        binding.etSearch.setSelection(cleaned.length)
+        suppressSuggestions = false
+        updateClearButtonVisibility(true)
+
+        if (AppPreferences.isVoiceAutoSearchEnabled(this)) {
+            performSearch(hideSoftKeyboard = true)
+        }
+    }
+
+    private fun showVoiceListeningOverlay(shortLangCode: String) {
+        isVoiceListening = true
+        binding.tvVoiceListeningTitle.text = getString(R.string.voice_listening_title, shortLangCode)
+        binding.tvVoiceLiveTranscript.setText(R.string.voice_listening_hint)
+        binding.voiceListeningOverlay.visibility = View.VISIBLE
+        binding.voicePulseView.startIdlePulse()
+    }
+
+    private fun hideVoiceListeningOverlay() {
+        isVoiceListening = false
+        if (::binding.isInitialized) {
+            binding.voicePulseView.stopPulse()
+            binding.voiceListeningOverlay.visibility = View.GONE
+        }
+    }
+
+    private fun stopVoiceListening() {
+        hideVoiceListeningOverlay()
+        try {
+            speechRecognizer?.cancel()
+            speechRecognizer?.destroy()
+        } catch (_: Exception) {
+        }
+        speechRecognizer = null
+    }
+
+    // --- Camera / Image OCR Search ---
+
+    private fun showOcrSourcePickerDialog() {
+        hideKeyboard()
+        hideSuggestions()
+
+        val items = arrayOf(
+            getString(R.string.ocr_take_photo),
+            getString(R.string.ocr_pick_gallery)
+        )
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.ocr_source_title)
+            .setItems(items) { dialog, which ->
+                dialog.dismiss()
+                if (which == 0) {
+                    launchCameraForOcr()
+                } else {
+                    launchGalleryForOcr()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun launchCameraForOcr() {
+        try {
+            val captureDir = File(cacheDir, "ocr_captures").apply { mkdirs() }
+            val tempFile = File(captureDir, "ocr_${System.currentTimeMillis()}.jpg")
+            val uri = FileProvider.getUriForFile(
+                this,
+                "${packageName}.fileprovider",
+                tempFile
+            )
+            pendingCameraPhotoUri = uri
+            takePictureLauncher.launch(uri)
+        } catch (_: Exception) {
+            Toast.makeText(this, R.string.ocr_error_result, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun launchGalleryForOcr() {
+        try {
+            pickMediaLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        } catch (_: Exception) {
+            Toast.makeText(this, R.string.ocr_error_result, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun openOcrScanSheet(imageUri: Uri) {
+        OcrScanDialogFragment.newInstance(imageUri)
+            .show(supportFragmentManager, "ocr_scan_sheet")
+    }
+
+    fun onSmartInputReceived(wordOrPhrase: String) {
+        searchWordFromList(wordOrPhrase)
+    }
+
+    // --- Smart Language Detection & Instant On-Device Translation ---
+
+    fun onSmartMlSettingsChanged() {
+        if (currentWord.isNotBlank()) {
+            triggerSmartMlAnalysis(currentWord, allowAutoSwitchTab = false)
+        } else {
+            binding.cardDetectedLang.visibility = View.GONE
+            binding.cardQuickTranslation.visibility = View.GONE
+        }
+    }
+
+    private fun triggerSmartMlAnalysis(word: String, allowAutoSwitchTab: Boolean) {
+        val trimmed = word.trim()
+        if (trimmed.isEmpty()) {
+            binding.cardDetectedLang.visibility = View.GONE
+            binding.cardQuickTranslation.visibility = View.GONE
+            return
+        }
+
+        smartMlJob?.cancel()
+        smartMlJob = lifecycleScope.launch {
+            val detectedLang = SmartMlHelper.identifyLanguage(trimmed) ?: AppPreferences.ML_LANG_DE
+            lastDetectedLangCode = detectedLang
+
+            // 1. Smart Language Detection UI & Dictionary Routing
+            if (AppPreferences.isSmartLanguageDetectionEnabled(this@MainActivity)) {
+                val langDisplay = AppPreferences.getMlLanguageDisplayName(this@MainActivity, detectedLang)
+                binding.tvDetectedLanguage.text = getString(R.string.detected_language_format, langDisplay)
+
+                when (detectedLang) {
+                    AppPreferences.ML_LANG_AR -> {
+                        binding.btnSwitchDetectedDict.visibility = View.GONE
+                        if (allowAutoSwitchTab) {
+                            val arabicDictIdx = dictionaries.indexOfFirst {
+                                it.name.equals("ArabDict", ignoreCase = true) ||
+                                    it.name.equals("PONS", ignoreCase = true) ||
+                                    it.name.equals("Langenscheidt", ignoreCase = true)
+                            }
+                            if (arabicDictIdx >= 0 && arabicDictIdx != selectedIndex) {
+                                switchToDictionaryTab(arabicDictIdx)
+                            }
+                        }
+                    }
+
+                    AppPreferences.ML_LANG_EN -> {
+                        val englishDictIdx = dictionaries.indexOfFirst {
+                            it.name.equals("PONS", ignoreCase = true) ||
+                                it.name.equals("FreeDic", ignoreCase = true) ||
+                                it.name.equals("Langenscheidt", ignoreCase = true)
+                        }
+                        if (englishDictIdx >= 0 && englishDictIdx != selectedIndex) {
+                            val targetDictName = dictionaries[englishDictIdx].name
+                            binding.btnSwitchDetectedDict.text =
+                                getString(R.string.detected_language_switch_action, targetDictName)
+                            binding.btnSwitchDetectedDict.visibility = View.VISIBLE
+                            binding.btnSwitchDetectedDict.setOnClickListener {
+                                AppPreferences.vibrateIfEnabled(it)
+                                switchToDictionaryTab(englishDictIdx)
+                                binding.btnSwitchDetectedDict.visibility = View.GONE
+                            }
+                        } else {
+                            binding.btnSwitchDetectedDict.visibility = View.GONE
+                        }
+                    }
+
+                    else -> {
+                        // German: keep current tab
+                        binding.btnSwitchDetectedDict.visibility = View.GONE
+                    }
+                }
+
+                if (!trimmed.equals(dismissedDetectedWord, ignoreCase = true)) {
+                    binding.cardDetectedLang.visibility = View.VISIBLE
+                }
+            } else {
+                binding.cardDetectedLang.visibility = View.GONE
+            }
+
+            // 2. Instant On-Device Translation Card
+            updateQuickTranslationCard(trimmed, detectedLang)
+        }
+    }
+
+    private fun switchToDictionaryTab(index: Int) {
+        if (index !in dictionaries.indices) return
+        selectedIndex = index
+        savePreferences()
+        tabAdapter.selectPosition(index)
+        scrollToSelectedTab(smooth = true)
+        if (binding.viewPager.currentItem != index) {
+            binding.viewPager.setCurrentItem(index, true)
+        }
+    }
+
+    private fun resolveEffectiveTargetLanguage(sourceLang: String): String {
+        val preferredTarget = AppPreferences.getTranslationTargetLanguage(this)
+        return if (preferredTarget.equals(sourceLang, ignoreCase = true)) {
+            if (sourceLang.equals(AppPreferences.ML_LANG_DE, ignoreCase = true)) {
+                AppPreferences.ML_LANG_AR
+            } else {
+                AppPreferences.ML_LANG_DE
+            }
+        } else {
+            preferredTarget
+        }
+    }
+
+    private suspend fun updateQuickTranslationCard(word: String, sourceLang: String) {
+        if (!AppPreferences.isQuickTranslationEnabled(this)) {
+            binding.cardQuickTranslation.visibility = View.GONE
+            return
+        }
+
+        val targetLang = resolveEffectiveTargetLanguage(sourceLang)
+        val sourceLabel = AppPreferences.getMlLanguageDisplayName(this, sourceLang)
+        val targetLabel = AppPreferences.getMlLanguageDisplayName(this, targetLang)
+
+        binding.tvQuickTranslationHeader.text =
+            getString(R.string.quick_translation_title, sourceLabel, targetLabel)
+        binding.cardQuickTranslation.visibility = View.VISIBLE
+        syncQuickTranslationExpandUi(animate = false)
+
+        val modelsReady = SmartMlHelper.arePairModelsDownloaded(sourceLang, targetLang)
+        if (!modelsReady) {
+            binding.tvQuickTranslationResult.visibility = View.GONE
+            binding.layoutQuickTranslateDownload.visibility = View.VISIBLE
+            return
+        }
+
+        binding.layoutQuickTranslateDownload.visibility = View.GONE
+        binding.tvQuickTranslationResult.visibility = View.VISIBLE
+        binding.tvQuickTranslationResult.setText(R.string.quick_translation_translating)
+
+        val translated = SmartMlHelper.translateOnDevice(word, sourceLang, targetLang)
+        if (!translated.isNullOrBlank()) {
+            binding.tvQuickTranslationResult.text = translated
+        } else {
+            binding.tvQuickTranslationResult.text = word
+        }
+    }
+
+    private fun syncQuickTranslationExpandUi(animate: Boolean) {
+        val expanded = AppPreferences.isQuickTranslationExpanded(this)
+        binding.layoutQuickTranslationBody.visibility = if (expanded) View.VISIBLE else View.GONE
+        val targetRotation = if (expanded) 180f else 0f
+        if (animate && AppPreferences.areAnimationsEnabled(this)) {
+            binding.ivQuickTranslateChevron.animate()
+                .rotation(targetRotation)
+                .setDuration(180L)
+                .start()
+        } else {
+            binding.ivQuickTranslateChevron.rotation = targetRotation
+        }
+    }
+
+    fun promptAndDownloadLanguageModel(langCode: String, langDisplayName: String) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.model_download_dialog_title)
+            .setMessage(getString(R.string.model_download_dialog_msg, langDisplayName))
+            .setPositiveButton(R.string.quick_translation_download_btn) { _, _ ->
+                runModelDownloadWithProgress {
+                    SmartMlHelper.downloadLanguageModel(langCode, preferWifi = false)
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun promptAndDownloadPairModels(
+        sourceLang: String,
+        targetLang: String,
+        pairDisplayName: String
+    ) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.model_download_dialog_title)
+            .setMessage(getString(R.string.model_download_dialog_msg, pairDisplayName))
+            .setPositiveButton(R.string.quick_translation_download_btn) { _, _ ->
+                runModelDownloadWithProgress {
+                    SmartMlHelper.downloadPairModels(sourceLang, targetLang, preferWifi = false)
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun runModelDownloadWithProgress(downloadBlock: suspend () -> Boolean) {
+        val density = resources.displayMetrics.density
+        val pad = (24 * density).toInt()
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = android.view.Gravity.CENTER_VERTICAL
+            setPadding(pad, pad, pad, pad)
+            addView(ProgressBar(this@MainActivity))
+            addView(TextView(this@MainActivity).apply {
+                text = getString(R.string.model_downloading_progress)
+                setPadding((16 * density).toInt(), 0, 0, 0)
+            })
+        }
+
+        val progressDialog: AlertDialog = MaterialAlertDialogBuilder(this)
+            .setView(container)
+            .setCancelable(false)
+            .create()
+        progressDialog.show()
+
+        lifecycleScope.launch {
+            val success = downloadBlock()
+            if (!isDestroyed) {
+                progressDialog.dismiss()
+                Toast.makeText(
+                    this@MainActivity,
+                    if (success) R.string.model_download_success else R.string.model_download_error,
+                    Toast.LENGTH_SHORT
+                ).show()
+                if (success && currentWord.isNotBlank()) {
+                    triggerSmartMlAnalysis(currentWord, allowAutoSwitchTab = false)
+                }
+            }
+        }
+    }
+
     override fun onDestroy() {
         autoSearchRunnable?.let { mainHandler.removeCallbacks(it) }
         suggestionJob?.cancel()
+        smartMlJob?.cancel()
+        try {
+            speechRecognizer?.cancel()
+            speechRecognizer?.destroy()
+        } catch (_: Exception) {
+        }
+        speechRecognizer = null
         tts?.apply {
             stop()
             shutdown()

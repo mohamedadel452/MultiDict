@@ -30,6 +30,7 @@
     <color name="spot_shadow">#243F3D9E</color>
     <color name="shimmer_base">#EFEBE4</color>
     <color name="shimmer_highlight">#FAF8F5</color>
+    <color name="scrim_backdrop">#B3000000</color>
 
     <!-- Legacy / Semantic Aliases mapped to Ink & Ivory tokens -->
     <color name="red_primary">@color/primary</color>

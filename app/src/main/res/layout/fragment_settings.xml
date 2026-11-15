@@ -334,6 +334,285 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Section 2B: Smart Input & On-Device AI (Phase 9) -->
+        <TextView
+            style="@style/TextAppearance.MultiDict.SectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/space_20"
+            android:paddingTop="@dimen/space_20"
+            android:paddingEnd="@dimen/space_20"
+            android:paddingBottom="@dimen/space_8"
+            android:text="@string/settings_category_smart_ml" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MultiDict.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginEnd="@dimen/screen_padding_horizontal">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 1. Auto-search after voice input -->
+                <LinearLayout
+                    android:id="@+id/rowVoiceAutoSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_voice_auto_search" />
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:text="@string/settings_voice_auto_search_sub" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/cbVoiceAutoSearch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/hairline"
+                    android:layout_marginStart="@dimen/screen_padding_horizontal"
+                    android:layout_marginEnd="@dimen/screen_padding_horizontal"
+                    android:background="@color/outline" />
+
+                <!-- 2. Smart language detection -->
+                <LinearLayout
+                    android:id="@+id/rowSmartLangDetect"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_smart_lang_detect" />
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:text="@string/settings_smart_lang_detect_sub" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/cbSmartLangDetect"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/hairline"
+                    android:layout_marginStart="@dimen/screen_padding_horizontal"
+                    android:layout_marginEnd="@dimen/screen_padding_horizontal"
+                    android:background="@color/outline" />
+
+                <!-- 3. Show quick translation card -->
+                <LinearLayout
+                    android:id="@+id/rowQuickTranslateEnabled"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_quick_translate_enabled" />
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:text="@string/settings_quick_translate_enabled_sub" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/cbQuickTranslateEnabled"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/hairline"
+                    android:layout_marginStart="@dimen/screen_padding_horizontal"
+                    android:layout_marginEnd="@dimen/screen_padding_horizontal"
+                    android:background="@color/outline" />
+
+                <!-- 4. Translation target language -->
+                <LinearLayout
+                    android:id="@+id/rowTranslationTargetLang"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size_standard"
+                        android:layout_height="@dimen/icon_size_standard"
+                        android:contentDescription="@string/settings_translation_target_lang"
+                        android:src="@drawable/ic_translate" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_12"
+                        android:layout_marginEnd="@dimen/space_8"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_translation_target_lang" />
+
+                        <TextView
+                            android:id="@+id/tvTranslationTargetValue"
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:textColor="@color/primary" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size_standard"
+                        android:layout_height="@dimen/icon_size_standard"
+                        android:contentDescription="@string/settings_translation_target_lang"
+                        android:src="@drawable/ic_chevron_end" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/hairline"
+                    android:layout_marginStart="@dimen/screen_padding_horizontal"
+                    android:layout_marginEnd="@dimen/screen_padding_horizontal"
+                    android:background="@color/outline" />
+
+                <!-- 5. Manage offline translation models -->
+                <LinearLayout
+                    android:id="@+id/rowManageMlModels"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size_standard"
+                        android:layout_height="@dimen/icon_size_standard"
+                        android:contentDescription="@string/settings_manage_ml_models"
+                        android:src="@drawable/ic_download" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_12"
+                        android:layout_marginEnd="@dimen/space_8"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_manage_ml_models" />
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:text="@string/settings_manage_ml_models_sub" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size_standard"
+                        android:layout_height="@dimen/icon_size_standard"
+                        android:contentDescription="@string/settings_manage_ml_models"
+                        android:src="@drawable/ic_chevron_end" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Section 3: WebView & Tabs -->
         <TextView
             style="@style/TextAppearance.MultiDict.SectionHeader"

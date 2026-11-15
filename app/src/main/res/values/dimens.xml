@@ -18,6 +18,7 @@
 
     <!-- Corner Radii -->
     <dimen name="radius_search_pill">28dp</dimen>
+    <dimen name="radius_pill">28dp</dimen>
     <dimen name="radius_card">20dp</dimen>
     <dimen name="radius_dialog">28dp</dimen>
     <dimen name="radius_bottom_bar">24dp</dimen>
