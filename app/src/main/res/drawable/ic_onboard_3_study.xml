@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Soft backdrop circle -->
+    <path
+        android:fillColor="@color/primary_container"
+        android:pathData="M100,100m-76,0a76,76 0,1 1,152 0a76,76 0,1 1,-152 0" />
+    <!-- Flashcard back card -->
+    <path
+        android:fillColor="@color/surface_container_high"
+        android:pathData="M62,48L154,48A14,14 0,0 1,168 62L168,134A14,14 0,0 1,154 148L62,148A14,14 0,0 1,48 134L48,62A14,14 0,0 1,62 48z" />
+    <!-- Flashcard front card -->
+    <path
+        android:fillColor="@color/surface"
+        android:strokeColor="@color/primary"
+        android:strokeWidth="2.5"
+        android:pathData="M48,58L140,58A14,14 0,0 1,154 72L154,144A14,14 0,0 1,140 158L48,158A14,14 0,0 1,34 144L34,72A14,14 0,0 1,48 58z" />
+    <!-- Star icon inside card -->
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M94,76L99.5,87.2L111.8,89L102.9,97.7L105,110L94,104.2L83,110L85.1,97.7L76.2,89L88.5,87.2z" />
+    <!-- Word & note lines -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M64,122h60v7h-60z" />
+    <path
+        android:fillColor="@color/outline"
+        android:pathData="M72,136h44v5h-44z" />
+</vector>

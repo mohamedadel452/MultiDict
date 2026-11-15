@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/surface"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/rowRoot"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/favorite_row_min_height"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_8"
+        android:paddingEnd="@dimen/space_12">
+
+        <!-- Drag handle for ItemTouchHelper reordering -->
+        <ImageView
+            android:id="@+id/ivDragHandle"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:contentDescription="@string/drag_handle"
+            android:padding="@dimen/space_12"
+            android:src="@drawable/ic_drag_handle" />
+
+        <!-- Show/Hide checkbox -->
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/cbEnabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:buttonTint="@color/primary" />
+
+        <!-- Pastel gradient dictionary circle badge -->
+        <TextView
+            android:id="@+id/tvOrderBadge"
+            style="@style/TextAppearance.MultiDict.Label"
+            android:layout_width="@dimen/order_badge_size"
+            android:layout_height="@dimen/order_badge_size"
+            android:layout_marginStart="@dimen/space_4"
+            android:background="@drawable/bg_circle_badge"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textStyle="bold" />
+
+        <!-- Dictionary name -->
+        <TextView
+            android:id="@+id/tvOrderName"
+            style="@style/TextAppearance.MultiDict.Body"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_12"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:textColor="@color/text_primary" />
+
+        <!-- Tonal up-arrow button to move item up -->
+        <ImageButton
+            android:id="@+id/btnMoveUp"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/move_up"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_arrow_up_box" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/hairline"
+        android:layout_marginStart="@dimen/screen_padding_horizontal"
+        android:layout_marginEnd="@dimen/screen_padding_horizontal"
+        android:background="@color/outline" />
+
+</LinearLayout>

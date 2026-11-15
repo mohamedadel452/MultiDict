@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Soft backdrop circle -->
+    <path
+        android:fillColor="@color/primary_container"
+        android:pathData="M100,100m-76,0a76,76 0,1 1,152 0a76,76 0,1 1,-152 0" />
+    <!-- Main page preview card -->
+    <path
+        android:fillColor="@color/surface"
+        android:strokeColor="@color/outline"
+        android:strokeWidth="2"
+        android:pathData="M50,42L150,42A14,14 0,0 1,164 56L164,114A14,14 0,0 1,150 128L50,128A14,14 0,0 1,36 114L36,56A14,14 0,0 1,50 42z" />
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M54,60h50v7h-50z" />
+    <path
+        android:fillColor="@color/outline"
+        android:pathData="M54,76h86v5h-86zM54,88h74v5h-74zM54,100h56v5h-56z" />
+    <!-- Bottom dictionary bar strip -->
+    <path
+        android:fillColor="@color/surface"
+        android:strokeColor="@color/primary"
+        android:strokeWidth="2"
+        android:pathData="M34,138L166,138A16,16 0,0 1,182 154L182,158A16,16 0,0 1,166 174L34,174A16,16 0,0 1,18 158L18,154A16,16 0,0 1,34 138z" />
+    <!-- Dictionary circular badges -->
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M48,156m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M82,156m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
+    <path
+        android:fillColor="@color/tertiary"
+        android:pathData="M116,156m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M150,156m-11,0a11,11 0,1 1,22 0a11,11 0,1 1,-22 0" />
+</vector>

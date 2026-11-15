@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:clickable="true"
+    android:focusable="true"
+    android:orientation="vertical">
+
+    <!-- Top header bar: Back + "Flashcards" -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/toolbar_height"
+        android:background="@color/background"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_8"
+        android:paddingEnd="@dimen/screen_padding_horizontal">
+
+        <ImageButton
+            android:id="@+id/btnBackFlashcards"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_back" />
+
+        <TextView
+            style="@style/TextAppearance.MultiDict.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_8"
+            android:text="@string/menu_flashcards" />
+    </LinearLayout>
+
+    <!-- Friendly Empty State if no favorites exist -->
+    <LinearLayout
+        android:id="@+id/tvEmptyFlashcards"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="@dimen/space_32"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="@dimen/empty_illustration_size"
+            android:layout_height="@dimen/empty_illustration_size"
+            android:contentDescription="@string/flashcards_empty"
+            android:src="@drawable/ic_empty_state" />
+
+        <TextView
+            style="@style/TextAppearance.MultiDict.Body"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_16"
+            android:gravity="center"
+            android:text="@string/flashcards_empty"
+            android:textColor="@color/text_secondary" />
+    </LinearLayout>
+
+    <!-- Flashcard content container -->
+    <LinearLayout
+        android:id="@+id/flashcardContent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/screen_padding_horizontal"
+        android:paddingTop="@dimen/space_8"
+        android:paddingEnd="@dimen/screen_padding_horizontal"
+        android:paddingBottom="@dimen/space_24">
+
+        <TextView
+            android:id="@+id/tvFlashcardProgress"
+            style="@style/TextAppearance.MultiDict.Label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/primary"
+            android:textStyle="bold" />
+
+        <!-- Large Flashcard (radius 28dp, subtle gradient from surfaceContainer to surface) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardFlashcard"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/space_16"
+            android:layout_marginBottom="@dimen/space_24"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:outlineAmbientShadowColor="@color/ambient_shadow"
+            android:outlineSpotShadowColor="@color/spot_shadow"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="@dimen/radius_flashcard"
+            app:cardElevation="@dimen/elevation_subtle"
+            app:strokeColor="@color/outline"
+            app:strokeWidth="@dimen/hairline">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_flashcard"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/space_24">
+
+                <TextView
+                    android:id="@+id/tvCardSideLabel"
+                    style="@style/TextAppearance.MultiDict.SectionHeader"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/flashcards_front_label"
+                    android:textColor="@color/secondary" />
+
+                <TextView
+                    android:id="@+id/tvCardMainText"
+                    style="@style/TextAppearance.MultiDict.DisplayWord"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:textColor="@color/text_primary" />
+
+                <ImageButton
+                    android:id="@+id/btnSpeakCard"
+                    android:layout_width="@dimen/touch_target_min"
+                    android:layout_height="@dimen/touch_target_min"
+                    android:layout_marginBottom="@dimen/space_8"
+                    android:background="@drawable/bg_tab_selected"
+                    android:contentDescription="@string/menu_pronounce"
+                    android:src="@drawable/ic_volume_up"
+                    app:tint="@color/primary" />
+
+                <TextView
+                    style="@style/TextAppearance.MultiDict.Caption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/flashcards_tap_to_flip"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Action buttons: Tonal "Review again" and Filled "I know it" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnReviewAgain"
+                style="@style/Widget.MultiDict.Button.Tonal"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height_large"
+                android:layout_marginEnd="@dimen/space_8"
+                android:layout_weight="1"
+                android:text="@string/flashcards_review_again" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnIKnowIt"
+                style="@style/Widget.MultiDict.Button.Filled"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/button_height_large"
+                android:layout_marginStart="@dimen/space_8"
+                android:layout_weight="1"
+                android:text="@string/flashcards_i_know_it" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

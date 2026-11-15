@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <!-- Soft backdrop circle -->
+    <path
+        android:fillColor="@color/primary_container"
+        android:pathData="M60,60m-44,0a44,44 0,1 1,88 0a44,44 0,1 1,-88 0" />
+    <!-- Open scholarly book -->
+    <path
+        android:fillColor="@color/surface"
+        android:pathData="M34,46 C34,43.8 35.8,42 38,42 L54,42 C57.3,42 60,44.7 60,48 L60,78 C60,75.8 57.3,74 54,74 L38,74 C35.8,74 34,72.2 34,70 Z"
+        android:strokeColor="@color/primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="2.4" />
+    <path
+        android:fillColor="@color/surface"
+        android:pathData="M86,46 C86,43.8 84.2,42 82,42 L66,42 C62.7,42 60,44.7 60,48 L60,78 C60,75.8 62.7,74 66,74 L82,74 C84.2,74 86,72.2 86,70 Z"
+        android:strokeColor="@color/primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="2.4" />
+    <!-- Reading lines -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M40,52H53M40,59H51M67,52H80M67,59H77"
+        android:strokeColor="@color/text_hint"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.0" />
+    <!-- Coral bookmark / spark -->
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M74,36 L80,36 L80,48 L77,45 L74,48 Z" />
+</vector>

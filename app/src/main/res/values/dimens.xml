@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing Scale (dp) -->
+    <dimen name="space_2">2dp</dimen>
+    <dimen name="space_4">4dp</dimen>
+    <dimen name="space_6">6dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_10">10dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_14">14dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_20">20dp</dimen>
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_32">32dp</dimen>
+
+    <!-- Screen Padding -->
+    <dimen name="screen_padding_horizontal">16dp</dimen>
+
+    <!-- Corner Radii -->
+    <dimen name="radius_search_pill">28dp</dimen>
+    <dimen name="radius_card">20dp</dimen>
+    <dimen name="radius_dialog">28dp</dimen>
+    <dimen name="radius_bottom_bar">24dp</dimen>
+    <dimen name="radius_chip_tab">16dp</dimen>
+    <dimen name="radius_button">16dp</dimen>
+    <dimen name="radius_icon_container">12dp</dimen>
+    <dimen name="radius_snackbar">16dp</dimen>
+    <dimen name="radius_flashcard">28dp</dimen>
+
+    <!-- Component Heights & Sizes -->
+    <dimen name="touch_target_min">48dp</dimen>
+    <dimen name="toolbar_height">56dp</dimen>
+    <dimen name="search_pill_height">56dp</dimen>
+    <dimen name="search_btn_size">40dp</dimen>
+    <dimen name="suggestion_row_height">56dp</dimen>
+    <dimen name="list_row_height">56dp</dimen>
+    <dimen name="favorite_row_min_height">68dp</dimen>
+    <dimen name="settings_row_min_height">68dp</dimen>
+    <dimen name="button_height">48dp</dimen>
+    <dimen name="button_height_large">54dp</dimen>
+    <dimen name="bottom_bar_height">74dp</dimen>
+    <dimen name="tab_badge_size">40dp</dimen>
+    <dimen name="order_badge_size">38dp</dimen>
+    <dimen name="icon_size_standard">24dp</dimen>
+    <dimen name="empty_illustration_size">120dp</dimen>
+    <dimen name="onboarding_illustration_size">210dp</dimen>
+    <dimen name="about_icon_container_size">88dp</dimen>
+    <dimen name="coral_underline_width">26dp</dimen>
+    <dimen name="coral_underline_height">3dp</dimen>
+
+    <!-- Hairline & Borders -->
+    <dimen name="hairline">1dp</dimen>
+    <dimen name="focus_stroke">2dp</dimen>
+    <dimen name="progress_bar_height">2dp</dimen>
+
+    <!-- Soft Diffused Elevations -->
+    <dimen name="elevation_none">0dp</dimen>
+    <dimen name="elevation_subtle">2dp</dimen>
+    <dimen name="elevation_floating">3dp</dimen>
+    <dimen name="elevation_modal">6dp</dimen>
+    <dimen name="elevation_overlay">12dp</dimen>
+    <dimen name="elevation_coach">24dp</dimen>
+</resources>

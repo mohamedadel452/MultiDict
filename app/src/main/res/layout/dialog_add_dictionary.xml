@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/space_20">
+
+    <EditText
+        android:id="@+id/etCustomDictName"
+        style="@style/TextAppearance.MultiDict.Body"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_height"
+        android:background="@drawable/bg_search_input"
+        android:hint="@string/hint_dict_name"
+        android:importantForAutofill="no"
+        android:inputType="textCapWords"
+        android:maxLines="1"
+        android:paddingStart="@dimen/space_16"
+        android:paddingEnd="@dimen/space_16"
+        android:singleLine="true"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_hint" />
+
+    <EditText
+        android:id="@+id/etCustomDictUrl"
+        style="@style/TextAppearance.MultiDict.Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/button_height"
+        android:layout_marginTop="@dimen/space_12"
+        android:background="@drawable/bg_search_input"
+        android:hint="@string/hint_dict_url"
+        android:importantForAutofill="no"
+        android:inputType="textUri"
+        android:maxLines="2"
+        android:paddingStart="@dimen/space_16"
+        android:paddingTop="@dimen/space_10"
+        android:paddingEnd="@dimen/space_16"
+        android:paddingBottom="@dimen/space_10"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_hint" />
+
+</LinearLayout>

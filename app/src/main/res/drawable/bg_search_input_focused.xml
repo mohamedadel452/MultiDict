@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Subtle 2dp primary glow ring -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/primary_container" />
+            <corners android:radius="@dimen/radius_search_pill" />
+        </shape>
+    </item>
+    <!-- Inner surfaceContainer pill with 2dp primary stroke -->
+    <item
+        android:bottom="1dp"
+        android:left="1dp"
+        android:right="1dp"
+        android:top="1dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/surface_container" />
+            <stroke
+                android:width="@dimen/focus_stroke"
+                android:color="@color/primary" />
+            <corners android:radius="@dimen/radius_search_pill" />
+        </shape>
+    </item>
+</layer-list>

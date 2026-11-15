@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Outer soft ring -->
+    <path
+        android:fillColor="@color/primary_container"
+        android:pathData="M100,100m-76,0a76,76 0,1 1,152 0a76,76 0,1 1,-152 0" />
+    <!-- Inner primary circle -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M100,100m-46,0a46,46 0,1 1,92 0a46,46 0,1 1,-92 0" />
+    <!-- Crisp checkmark -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/on_primary"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M80,101L94,115L122,85" />
+    <!-- Celebratory coral/sage sparkles -->
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M156,52m-6,0a6,6 0,1 1,12 0a6,6 0,1 1,-12 0" />
+    <path
+        android:fillColor="@color/tertiary"
+        android:pathData="M46,64m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M150,148m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+</vector>

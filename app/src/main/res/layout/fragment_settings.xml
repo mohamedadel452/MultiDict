@@ -1,0 +1,592 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:clickable="true"
+    android:fillViewport="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/space_32">
+
+        <!-- Top header bar: "Einstellungen / Settings" -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbar_height"
+            android:background="@color/background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/space_8"
+            android:paddingEnd="@dimen/screen_padding_horizontal">
+
+            <ImageButton
+                android:id="@+id/btnBackSettings"
+                android:layout_width="@dimen/touch_target_min"
+                android:layout_height="@dimen/touch_target_min"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_back" />
+
+            <TextView
+                style="@style/TextAppearance.MultiDict.Title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_8"
+                android:text="@string/menu_settings" />
+        </LinearLayout>
+
+        <!-- Section 1: Appearance (Language + Theme + Optional Dynamic Colors) -->
+        <TextView
+            style="@style/TextAppearance.MultiDict.SectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/space_20"
+            android:paddingTop="@dimen/space_16"
+            android:paddingEnd="@dimen/space_20"
+            android:paddingBottom="@dimen/space_8"
+            android:text="@string/settings_category_theme" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MultiDict.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginEnd="@dimen/screen_padding_horizontal">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- 1. Language Row -->
+                <LinearLayout
+                    android:id="@+id/rowLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size_standard"
+                        android:layout_height="@dimen/icon_size_standard"
+                        android:contentDescription="@string/settings_language"
+                        android:src="@drawable/ic_language" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_12"
+                        android:layout_marginEnd="@dimen/space_8"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_language" />
+
+                        <TextView
+                            android:id="@+id/tvLanguageValue"
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:textColor="@color/primary" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size_standard"
+                        android:layout_height="@dimen/icon_size_standard"
+                        android:contentDescription="@string/settings_language"
+                        android:src="@drawable/ic_chevron_end" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/hairline"
+                    android:layout_marginStart="@dimen/screen_padding_horizontal"
+                    android:layout_marginEnd="@dimen/screen_padding_horizontal"
+                    android:background="@color/outline" />
+
+                <!-- 2. Theme Row + Segmented Buttons with Sun/Moon/Phone preview icons -->
+                <LinearLayout
+                    android:id="@+id/rowTheme"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/touch_target_min"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_4">
+
+                    <ImageView
+                        android:id="@+id/ivThemePreview"
+                        android:layout_width="@dimen/icon_size_standard"
+                        android:layout_height="@dimen/icon_size_standard"
+                        android:contentDescription="@string/settings_theme"
+                        android:src="@drawable/ic_theme_system" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/space_12"
+                        android:layout_marginEnd="@dimen/space_8"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_theme" />
+
+                        <TextView
+                            android:id="@+id/tvThemeValue"
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:textColor="@color/primary" />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="@dimen/icon_size_standard"
+                        android:layout_height="@dimen/icon_size_standard"
+                        android:contentDescription="@string/settings_theme"
+                        android:src="@drawable/ic_chevron_end" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggleThemeGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/space_12"
+                    android:paddingTop="@dimen/space_4"
+                    android:paddingEnd="@dimen/space_12"
+                    android:paddingBottom="@dimen/space_12"
+                    app:selectionRequired="true"
+                    app:singleSelection="true">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnThemeSystem"
+                        style="@style/Widget.MultiDict.Button.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_weight="1"
+                        android:paddingStart="@dimen/space_6"
+                        android:paddingEnd="@dimen/space_6"
+                        android:text="@string/theme_system"
+                        app:icon="@drawable/ic_theme_system"
+                        app:iconGravity="textStart"
+                        app:iconPadding="@dimen/space_4" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnThemeLight"
+                        style="@style/Widget.MultiDict.Button.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_weight="1"
+                        android:paddingStart="@dimen/space_6"
+                        android:paddingEnd="@dimen/space_6"
+                        android:text="@string/theme_light"
+                        app:icon="@drawable/ic_theme_light"
+                        app:iconGravity="textStart"
+                        app:iconPadding="@dimen/space_4" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnThemeDark"
+                        style="@style/Widget.MultiDict.Button.Outlined"
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/button_height"
+                        android:layout_weight="1"
+                        android:paddingStart="@dimen/space_6"
+                        android:paddingEnd="@dimen/space_6"
+                        android:text="@string/theme_dark"
+                        app:icon="@drawable/ic_theme_dark"
+                        app:iconGravity="textStart"
+                        app:iconPadding="@dimen/space_4" />
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/hairline"
+                    android:layout_marginStart="@dimen/screen_padding_horizontal"
+                    android:layout_marginEnd="@dimen/screen_padding_horizontal"
+                    android:background="@color/outline" />
+
+                <!-- 3. Optional Android 12+ Dynamic Color Toggle -->
+                <LinearLayout
+                    android:id="@+id/rowDynamicColor"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_dynamic_color" />
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:text="@string/settings_dynamic_color_sub" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/cbDynamicColor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Section 2: SearchBar -->
+        <TextView
+            style="@style/TextAppearance.MultiDict.SectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/space_20"
+            android:paddingTop="@dimen/space_20"
+            android:paddingEnd="@dimen/space_20"
+            android:paddingBottom="@dimen/space_8"
+            android:text="@string/settings_category_searchbar" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MultiDict.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginEnd="@dimen/screen_padding_horizontal">
+
+            <LinearLayout
+                android:id="@+id/rowAutoRemoveWord"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/settings_row_min_height"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/screen_padding_horizontal"
+                android:paddingTop="@dimen/space_12"
+                android:paddingEnd="@dimen/screen_padding_horizontal"
+                android:paddingBottom="@dimen/space_12">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.MultiDict.BodyBold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_auto_remove_word" />
+
+                    <TextView
+                        style="@style/TextAppearance.MultiDict.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:text="@string/settings_auto_remove_word_sub" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/cbAutoRemoveWord"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Section 3: WebView & Tabs -->
+        <TextView
+            style="@style/TextAppearance.MultiDict.SectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/space_20"
+            android:paddingTop="@dimen/space_20"
+            android:paddingEnd="@dimen/space_20"
+            android:paddingBottom="@dimen/space_8"
+            android:text="@string/settings_category_webview" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MultiDict.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginEnd="@dimen/screen_padding_horizontal">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/rowDesktopMode"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_desktop_mode" />
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:text="@string/settings_desktop_mode_sub" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/cbDesktopMode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/hairline"
+                    android:layout_marginStart="@dimen/screen_padding_horizontal"
+                    android:layout_marginEnd="@dimen/screen_padding_horizontal"
+                    android:background="@color/outline" />
+
+                <LinearLayout
+                    android:id="@+id/rowAutoSearchTabs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center_vertical"
+                    android:minHeight="@dimen/settings_row_min_height"
+                    android:orientation="horizontal"
+                    android:paddingStart="@dimen/screen_padding_horizontal"
+                    android:paddingTop="@dimen/space_12"
+                    android:paddingEnd="@dimen/screen_padding_horizontal"
+                    android:paddingBottom="@dimen/space_12">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.BodyBold"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_auto_search_tabs" />
+
+                        <TextView
+                            style="@style/TextAppearance.MultiDict.Caption"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_2"
+                            android:text="@string/settings_auto_search_tabs_sub" />
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/cbAutoSearchTabs"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        android:focusable="false" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Section 4: Interaction (Etc) -->
+        <TextView
+            style="@style/TextAppearance.MultiDict.SectionHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/space_20"
+            android:paddingTop="@dimen/space_20"
+            android:paddingEnd="@dimen/space_20"
+            android:paddingBottom="@dimen/space_8"
+            android:text="@string/settings_category_etc" />
+
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MultiDict.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginEnd="@dimen/screen_padding_horizontal">
+
+            <LinearLayout
+                android:id="@+id/rowVibrateOnClick"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/settings_row_min_height"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/screen_padding_horizontal"
+                android:paddingTop="@dimen/space_12"
+                android:paddingEnd="@dimen/screen_padding_horizontal"
+                android:paddingBottom="@dimen/space_12">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.MultiDict.BodyBold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/settings_vibrate_on_click" />
+
+                    <TextView
+                        style="@style/TextAppearance.MultiDict.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:text="@string/settings_vibrate_on_click_sub" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/cbVibrateOnClick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReplayOnboarding"
+            style="@style/Widget.MultiDict.Button.Tonal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_large"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginTop="@dimen/space_24"
+            android:layout_marginEnd="@dimen/screen_padding_horizontal"
+            android:text="@string/menu_how_to_use" />
+
+        <!-- Standalone "About the app" row directly below "How to use the app" -->
+        <com.google.android.material.card.MaterialCardView
+            style="@style/Widget.MultiDict.Card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginTop="@dimen/space_12"
+            android:layout_marginEnd="@dimen/screen_padding_horizontal">
+
+            <LinearLayout
+                android:id="@+id/rowAboutApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/settings_row_min_height"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/screen_padding_horizontal"
+                android:paddingTop="@dimen/space_12"
+                android:paddingEnd="@dimen/screen_padding_horizontal"
+                android:paddingBottom="@dimen/space_12">
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_standard"
+                    android:layout_height="@dimen/icon_size_standard"
+                    android:contentDescription="@string/about_title"
+                    android:src="@drawable/ic_info" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/space_12"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.MultiDict.BodyBold"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/about_title" />
+
+                    <TextView
+                        style="@style/TextAppearance.MultiDict.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_2"
+                        android:text="@string/about_sub" />
+                </LinearLayout>
+
+                <ImageView
+                    android:layout_width="@dimen/icon_size_standard"
+                    android:layout_height="@dimen/icon_size_standard"
+                    android:contentDescription="@string/about_title"
+                    android:src="@drawable/ic_chevron_end" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnClearCookiesCache"
+            style="@style/Widget.MultiDict.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/button_height_large"
+            android:layout_marginStart="@dimen/screen_padding_horizontal"
+            android:layout_marginTop="@dimen/space_12"
+            android:layout_marginEnd="@dimen/screen_padding_horizontal"
+            android:text="@string/settings_clear_cookies_cache"
+            android:textColor="@color/secondary"
+            app:strokeColor="@color/secondary" />
+
+    </LinearLayout>
+</ScrollView>

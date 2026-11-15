@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="120"
+    android:viewportHeight="120">
+    <!-- Soft backdrop circle -->
+    <path
+        android:fillColor="@color/primary_container"
+        android:pathData="M60,60m-44,0a44,44 0,1 1,88 0a44,44 0,1 1,-88 0" />
+    <!-- Friendly cloud outline -->
+    <path
+        android:fillColor="@color/surface"
+        android:pathData="M42,74H78C84.6,74 90,68.6 90,62C90,55.8 85.3,50.7 79.2,50.1C76.7,41.9 69.1,36 60,36C49.5,36 40.9,44.1 40.1,54.4C34.4,55.3 30,60.2 30,66C30,70.4 35.4,74 42,74Z"
+        android:strokeColor="@color/primary"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="2.4" />
+    <!-- Coral exclamation / signal mark -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M60,48V60"
+        android:strokeColor="@color/secondary"
+        android:strokeLineCap="round"
+        android:strokeWidth="3.0" />
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M60,66m-2.2,0a2.2,2.2 0,1 1,4.4 0a2.2,2.2 0,1 1,-4.4 0" />
+</vector>

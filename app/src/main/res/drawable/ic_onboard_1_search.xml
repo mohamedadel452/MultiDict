@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Soft backdrop circle -->
+    <path
+        android:fillColor="@color/primary_container"
+        android:pathData="M100,100m-76,0a76,76 0,1 1,152 0a76,76 0,1 1,-152 0" />
+    <!-- Stacked dictionary cards -->
+    <path
+        android:fillColor="@color/surface_container_high"
+        android:pathData="M56,46L144,46A12,12 0,0 1,156 58L156,126A12,12 0,0 1,144 138L56,138A12,12 0,0 1,44 126L44,58A12,12 0,0 1,56 46z" />
+    <path
+        android:fillColor="@color/surface"
+        android:strokeColor="@color/outline"
+        android:strokeWidth="2"
+        android:pathData="M48,56L136,56A12,12 0,0 1,148 68L148,136A12,12 0,0 1,136 148L48,148A12,12 0,0 1,36 136L36,68A12,12 0,0 1,48 56z" />
+    <!-- Text lines inside card -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M52,74h48v7h-48z" />
+    <path
+        android:fillColor="@color/outline"
+        android:pathData="M52,90h72v5h-72zM52,103h60v5h-60zM52,116h44v5h-44z" />
+    <!-- Magnifying glass in Soft Coral & Indigo -->
+    <path
+        android:fillColor="@color/secondary"
+        android:pathData="M149,137L171,159A6,6 0,0 1,162 168L140,146z" />
+    <path
+        android:fillColor="@color/surface"
+        android:strokeColor="@color/primary"
+        android:strokeWidth="6"
+        android:pathData="M126,122m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0" />
+</vector>

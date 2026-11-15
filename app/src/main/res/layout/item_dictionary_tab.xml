@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tabRoot"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_marginStart="@dimen/space_4"
+    android:layout_marginEnd="@dimen/space_4"
+    android:layout_marginTop="@dimen/space_6"
+    android:layout_marginBottom="@dimen/space_6"
+    android:minWidth="@dimen/touch_target_min"
+    android:paddingStart="@dimen/space_10"
+    android:paddingEnd="@dimen/space_10"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@color/tab_unselected_bg"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- 40dp pastel gradient circle with dictionary initials in darker hue -->
+    <TextView
+        android:id="@+id/tvBadge"
+        style="@style/TextAppearance.MultiDict.Label"
+        android:layout_width="@dimen/tab_badge_size"
+        android:layout_height="@dimen/tab_badge_size"
+        android:background="@drawable/bg_circle_badge"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:letterSpacing="0.02"
+        android:maxLines="1" />
+
+    <!-- Dictionary name below in Label style -->
+    <TextView
+        android:id="@+id/tvName"
+        style="@style/TextAppearance.MultiDict.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/space_2"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+</LinearLayout>

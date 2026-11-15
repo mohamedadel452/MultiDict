@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".MainActivity">
+
+    <!-- 1. Scholarly Toolbar: transparent/background-colored, no elevation, display serif word + coral bar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/toolbar_height"
+        android:background="@color/background"
+        android:elevation="@dimen/elevation_none"
+        android:paddingStart="@dimen/space_4"
+        android:paddingEnd="@dimen/space_4"
+        app:menu="@menu/main_menu"
+        app:title=""
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/space_6"
+            android:paddingBottom="@dimen/space_4">
+
+            <TextView
+                android:id="@+id/tvToolbarWord"
+                style="@style/TextAppearance.MultiDict.DisplayWord"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@string/app_name" />
+
+            <View
+                android:id="@+id/viewCoralUnderline"
+                android:layout_width="@dimen/coral_underline_width"
+                android:layout_height="@dimen/coral_underline_height"
+                android:layout_marginTop="@dimen/space_2"
+                android:background="@drawable/bg_coral_underline" />
+        </LinearLayout>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <!-- 2. Floating Search Pill (surfaceContainer, radius 28dp, 1dp outline, 56dp height) -->
+    <LinearLayout
+        android:id="@+id/searchRow"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/search_pill_height"
+        android:layout_marginStart="@dimen/screen_padding_horizontal"
+        android:layout_marginEnd="@dimen/screen_padding_horizontal"
+        android:layout_marginTop="@dimen/space_4"
+        android:background="@drawable/bg_search_input"
+        android:elevation="@dimen/elevation_subtle"
+        android:outlineAmbientShadowColor="@color/ambient_shadow"
+        android:outlineSpotShadowColor="@color/spot_shadow"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/space_16"
+        android:paddingEnd="@dimen/space_8"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/ivSearchLeading"
+            android:layout_width="@dimen/icon_size_standard"
+            android:layout_height="@dimen/icon_size_standard"
+            android:contentDescription="@string/search_action"
+            android:src="@drawable/ic_search" />
+
+        <EditText
+            android:id="@+id/etSearch"
+            style="@style/TextAppearance.MultiDict.Body"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="@string/search_hint"
+            android:imeOptions="actionSearch"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingStart="@dimen/space_12"
+            android:paddingEnd="@dimen/space_8"
+            android:singleLine="true"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_hint" />
+
+        <ImageButton
+            android:id="@+id/btnClear"
+            android:layout_width="@dimen/touch_target_min"
+            android:layout_height="@dimen/touch_target_min"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/clear_search"
+            android:src="@drawable/ic_clear"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/btnSearch"
+            android:layout_width="@dimen/search_btn_size"
+            android:layout_height="@dimen/search_btn_size"
+            android:minWidth="@dimen/touch_target_min"
+            android:minHeight="@dimen/touch_target_min"
+            android:background="@drawable/bg_search_button"
+            android:contentDescription="@string/search_action"
+            android:src="@drawable/ic_search_on_primary"
+            android:stateListAnimator="@animator/press_scale" />
+    </LinearLayout>
+
+    <!-- 3. WebView Card Container: rounded 20dp corners, slightly inset from screen edges -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/webViewCardContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/space_8"
+        android:layout_marginEnd="@dimen/space_8"
+        android:layout_marginTop="@dimen/space_10"
+        android:layout_marginBottom="@dimen/space_8"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="@dimen/radius_card"
+        app:cardElevation="@dimen/elevation_none"
+        app:strokeColor="@color/outline"
+        app:strokeWidth="@dimen/hairline"
+        app:layout_constraintTop_toBottomOf="@id/searchRow"
+        app:layout_constraintBottom_toTopOf="@id/bottomBarCard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 4. Floating Autocomplete Suggestions Card (radius 20dp, slides/fades under search pill) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardSuggestions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/screen_padding_horizontal"
+        android:layout_marginEnd="@dimen/screen_padding_horizontal"
+        android:layout_marginTop="@dimen/space_6"
+        android:outlineAmbientShadowColor="@color/ambient_shadow"
+        android:outlineSpotShadowColor="@color/spot_shadow"
+        android:visibility="gone"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="@dimen/radius_card"
+        app:cardElevation="@dimen/elevation_modal"
+        app:strokeColor="@color/outline"
+        app:strokeWidth="@dimen/hairline"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintTop_toBottomOf="@id/searchRow"
+        app:layout_constraintBottom_toTopOf="@id/bottomBarCard"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvSuggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- 5. Floating Rounded Bottom Dictionary Bar (radius 24dp, surface color, 8dp margin) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomBarCard"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/bottom_bar_height"
+        android:layout_marginStart="@dimen/space_12"
+        android:layout_marginEnd="@dimen/space_12"
+        android:layout_marginBottom="@dimen/space_8"
+        android:outlineAmbientShadowColor="@color/ambient_shadow"
+        android:outlineSpotShadowColor="@color/spot_shadow"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="@dimen/radius_bottom_bar"
+        app:cardElevation="@dimen/elevation_floating"
+        app:strokeColor="@color/outline"
+        app:strokeWidth="@dimen/hairline"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvDictionaries"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:layoutDirection="ltr"
+            android:paddingStart="@dimen/space_8"
+            android:paddingEnd="@dimen/space_8" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Full-screen container for History, Favorites, Flashcards, Wörterbücher & Einstellungen fragments -->
+    <FrameLayout
+        android:id="@+id/overlayFragmentContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="@dimen/elevation_overlay"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Interactive Coach Mark Tour Overlay -->
+    <com.example.multidict.CoachMarkOverlay
+        android:id="@+id/coachMarkOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:elevation="@dimen/elevation_coach"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

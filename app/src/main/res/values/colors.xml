@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- "Ink & Ivory" Light Mode Palette -->
+    <color name="background">#FAF8F5</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_container">#F3EFEA</color>
+    <color name="surface_container_high">#EAE5DE</color>
+    <color name="outline">#E3DDD5</color>
+
+    <color name="primary">#3F3D9E</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#E4E3FA</color>
+    <color name="on_primary_container">#1E1D5C</color>
+
+    <color name="secondary">#F26B5B</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="accent_coral">#F26B5B</color>
+    <color name="tertiary">#6FA58F</color>
+
+    <color name="text_primary">#1B1B24</color>
+    <color name="text_secondary">#6A6872</color>
+    <color name="text_hint">#9A97A0</color>
+
+    <color name="error">#D64545</color>
+    <color name="success">#3E9B6E</color>
+
+    <color name="inverse_surface">#24232E</color>
+    <color name="inverse_on_surface">#FAF8F5</color>
+    <color name="ambient_shadow">#1A3F3D9E</color>
+    <color name="spot_shadow">#243F3D9E</color>
+    <color name="shimmer_base">#EFEBE4</color>
+    <color name="shimmer_highlight">#FAF8F5</color>
+
+    <!-- Legacy / Semantic Aliases mapped to Ink & Ivory tokens -->
+    <color name="red_primary">@color/primary</color>
+    <color name="red_primary_dark">@color/on_primary_container</color>
+    <color name="red_accent">@color/secondary</color>
+    <color name="blue_search">@color/primary</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#1B1B24</color>
+    <color name="bg_screen">@color/background</color>
+    <color name="bg_surface">@color/surface</color>
+    <color name="bg_card">@color/surface</color>
+    <color name="bg_input">@color/surface_container</color>
+    <color name="input_stroke">@color/outline</color>
+    <color name="toolbar_bg">@color/background</color>
+    <color name="toolbar_icon_tint">@color/text_secondary</color>
+    <color name="search_row_bg">@color/background</color>
+    <color name="divider_color">@color/outline</color>
+    <color name="tab_bar_bg">@color/surface</color>
+    <color name="tab_selected_bg">@color/surface_container_high</color>
+    <color name="tab_unselected_bg">#00000000</color>
+    <color name="dark_screen_bg">@color/background</color>
+    <color name="dark_toolbar_bg">@color/background</color>
+    <color name="dark_divider">@color/outline</color>
+    <color name="dark_text_primary">@color/text_primary</color>
+    <color name="dark_text_secondary">@color/text_secondary</color>
+    <color name="settings_accent_gold">@color/secondary</color>
+
+    <!-- Per-Dictionary Soft Pastel Gradients & Foreground Tones (Light) -->
+    <!-- 1. Duden: Yellow / Amber -->
+    <color name="dict_duden_start">#FDF3D0</color>
+    <color name="dict_duden_end">#F9E5A8</color>
+    <color name="dict_duden_fg">#855A0E</color>
+    <!-- 2. Synonyme: Teal -->
+    <color name="dict_synonyme_start">#D7F2EE</color>
+    <color name="dict_synonyme_end">#BCE6DF</color>
+    <color name="dict_synonyme_fg">#186359</color>
+    <!-- 3. DWDS / Stilwörterbuch: Indigo -->
+    <color name="dict_dwds_start">#E4E3FA</color>
+    <color name="dict_dwds_end">#CFCEF8</color>
+    <color name="dict_dwds_fg">#343285</color>
+    <!-- 4. FreeDic: Blue -->
+    <color name="dict_freedic_start">#DCEBFA</color>
+    <color name="dict_freedic_end">#C3DDF7</color>
+    <color name="dict_freedic_fg">#1E5388</color>
+    <!-- 5. ArabDict: Green / Sage -->
+    <color name="dict_arabdict_start">#DCF0E5</color>
+    <color name="dict_arabdict_end">#C1E4D1</color>
+    <color name="dict_arabdict_fg">#1F6442</color>
+    <!-- 6. PONS: Orange -->
+    <color name="dict_pons_start">#FDE7D4</color>
+    <color name="dict_pons_end">#FAD6B8</color>
+    <color name="dict_pons_fg">#8D4615</color>
+    <!-- 7. Langenscheidt: Red / Rose -->
+    <color name="dict_langenscheidt_start">#FCE0E3</color>
+    <color name="dict_langenscheidt_end">#F8CAD0</color>
+    <color name="dict_langenscheidt_fg">#8E2438</color>
+    <!-- 8. Verben.de: Purple -->
+    <color name="dict_verben_start">#EFE0FA</color>
+    <color name="dict_verben_end">#E2C9F5</color>
+    <color name="dict_verben_fg">#5B2884</color>
+    <!-- 9. Verbformen: Violet -->
+    <color name="dict_verbformen_start">#E8E0FA</color>
+    <color name="dict_verbformen_end">#D6C9F5</color>
+    <color name="dict_verbformen_fg">#462A82</color>
+    <!-- 10. Wortschatz: Cyan -->
+    <color name="dict_wortschatz_start">#D9F2F7</color>
+    <color name="dict_wortschatz_end">#BEE7F0</color>
+    <color name="dict_wortschatz_fg">#165E70</color>
+    <!-- 11. Wiktionary: Grey-Blue -->
+    <color name="dict_wiktionary_start">#E4EAEF</color>
+    <color name="dict_wiktionary_end">#D1DBE3</color>
+    <color name="dict_wiktionary_fg">#3A4E5E</color>
+    <!-- 12. Bilder: Pink -->
+    <color name="dict_bilder_start">#FCE0EE</color>
+    <color name="dict_bilder_end">#F7C8DF</color>
+    <color name="dict_bilder_fg">#8A2457</color>
+</resources>
