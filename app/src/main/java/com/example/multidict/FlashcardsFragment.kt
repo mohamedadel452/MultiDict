@@ -7,25 +7,25 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.multidict.databinding.FragmentFlashcardsBinding
+import kotlinx.coroutines.launch
 
 /**
- * Flashcards practice screen for favorite words:
- * - Front: German word in Display serif + speaker button (reads word aloud via German TTS)
- * - Tap card to flip with 3D rotationY (cameraDistance set) -> Back: personal offline note/meaning
- * - "Review again" re-inserts the card near the front of the deck so it repeats more often
- * - "I know it" moves the card to the back of the deck and increments the known count
+ * MVVM View for 3D Flashcards study:
+ * Observes [MainViewModel.flashcardState] and delegates deck progression and card flipping to [MainViewModel].
  */
 class FlashcardsFragment : Fragment() {
 
     private var _binding: FragmentFlashcardsBinding? = null
     private val binding get() = _binding!!
 
-    private val deck = ArrayDeque<String>()
-    private var totalCardsCount: Int = 0
-    private var currentCardIndex: Int = 1
-    private var knownCount: Int = 0
-    private var isShowingBack: Boolean = false
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    }
     private var isFlipping: Boolean = false
 
     override fun onCreateView(
@@ -40,24 +40,12 @@ class FlashcardsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val favorites = AppPreferences.getFavorites(requireContext())
-        deck.clear()
-        deck.addAll(favorites)
-        totalCardsCount = favorites.size
+        viewModel.initFlashcardDeck()
 
         binding.btnBackFlashcards.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
             parentFragmentManager.popBackStack()
         }
-
-        if (deck.isEmpty()) {
-            binding.tvEmptyFlashcards.visibility = View.VISIBLE
-            binding.flashcardContent.visibility = View.GONE
-            return
-        }
-
-        binding.tvEmptyFlashcards.visibility = View.GONE
-        binding.flashcardContent.visibility = View.VISIBLE
 
         // Configure 3D camera distance for smooth perspective rotationY
         val scale = resources.displayMetrics.density
@@ -65,51 +53,44 @@ class FlashcardsFragment : Fragment() {
 
         binding.cardFlashcard.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
-            flipCard()
+            flipCard3D()
         }
 
         binding.btnSpeakCard.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
-            val word = deck.firstOrNull() ?: return@setOnClickListener
-            (activity as? MainActivity)?.speakWord(word)
+            val word = viewModel.flashcardState.value.currentWord
+            if (word.isNotBlank()) {
+                (activity as? MainActivity)?.speakWord(word)
+            }
         }
 
         binding.btnReviewAgain.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
-            val current = deck.removeFirstOrNull() ?: return@setOnClickListener
-            val insertPos = minOf(2, deck.size)
-            val tempList = deck.toMutableList()
-            tempList.add(insertPos, current)
-            deck.clear()
-            deck.addAll(tempList)
-
-            isShowingBack = false
             binding.cardFlashcard.rotationY = 0f
-            renderCurrentCard()
+            viewModel.markFlashcardReviewAgain()
         }
 
         binding.btnIKnowIt.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
-            val current = deck.removeFirstOrNull() ?: return@setOnClickListener
-            knownCount++
-            currentCardIndex = (currentCardIndex % totalCardsCount) + 1
-            deck.addLast(current)
-
-            isShowingBack = false
             binding.cardFlashcard.rotationY = 0f
-            renderCurrentCard()
+            viewModel.markFlashcardKnown()
         }
 
-        renderCurrentCard()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.flashcardState.collect { state ->
+                    renderFlashcardState(state)
+                }
+            }
+        }
     }
 
-    private fun flipCard() {
+    private fun flipCard3D() {
         if (isFlipping) return
         val b = _binding ?: return
-        isShowingBack = !isShowingBack
 
         if (!AppPreferences.areAnimationsEnabled(requireContext())) {
-            renderCurrentCard()
+            viewModel.toggleFlashcardSide()
             return
         }
 
@@ -123,7 +104,7 @@ class FlashcardsFragment : Fragment() {
             .withEndAction {
                 val bindingNow = _binding
                 if (bindingNow != null) {
-                    renderCurrentCard()
+                    viewModel.toggleFlashcardSide()
                     bindingNow.cardFlashcard.rotationY = -90f
                     bindingNow.cardFlashcard.animate()
                         .rotationY(0f)
@@ -140,26 +121,32 @@ class FlashcardsFragment : Fragment() {
             .start()
     }
 
-    private fun renderCurrentCard() {
+    private fun renderFlashcardState(state: FlashcardUiState) {
         val b = _binding ?: return
-        val word = deck.firstOrNull() ?: return
+        if (state.isEmpty) {
+            b.tvEmptyFlashcards.visibility = View.VISIBLE
+            b.flashcardContent.visibility = View.GONE
+            return
+        }
+
+        b.tvEmptyFlashcards.visibility = View.GONE
+        b.flashcardContent.visibility = View.VISIBLE
 
         b.tvFlashcardProgress.text = getString(
             R.string.flashcards_progress,
-            currentCardIndex,
-            totalCardsCount,
-            knownCount
+            state.currentCardIndex,
+            state.totalCardsCount,
+            state.knownCount
         )
 
-        if (!isShowingBack) {
+        if (!state.isShowingBack) {
             b.tvCardSideLabel.text = getString(R.string.flashcards_front_label)
-            b.tvCardMainText.text = word
+            b.tvCardMainText.text = state.currentWord
             b.btnSpeakCard.visibility = View.VISIBLE
         } else {
             b.tvCardSideLabel.text = getString(R.string.flashcards_back_label)
-            val note = AppPreferences.getWordNote(requireContext(), word)
-            b.tvCardMainText.text = if (note.isNotEmpty()) {
-                note
+            b.tvCardMainText.text = if (state.currentNote.isNotEmpty()) {
+                state.currentNote
             } else {
                 getString(R.string.flashcards_no_note)
             }

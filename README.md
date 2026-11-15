@@ -83,27 +83,41 @@ All active dictionary tabs load simultaneously in memory (`ViewPager2` + persist
 
 ---
 
-## 🏗️ Architecture Overview | الهيكل البرمجي
+## 🏗️ Architecture Overview (MVVM) | الهيكل البرمجي
+
+MultiDict follows the **MVVM (Model – View – ViewModel)** architecture using Android Jetpack `AndroidViewModel`, reactive Kotlin `StateFlow`, and a unified `MultiDictRepository`:
 
 ```mermaid
 flowchart TD
-    App["MultiDictApp (Zero-Flash Theme & Locale Init)"] --> Splash["SplashScreen / OnboardingPrefs"]
-    Splash -->|First Launch| Onboarding["OnboardingActivity (5-Page Carousel)"]
-    Splash -->|Returning User| Main["MainActivity (Search + Voice + CoachMarks + TTS)"]
-    Onboarding --> Main
+    subgraph View ["View Layer (Activities & Fragments)"]
+        Main["MainActivity (Search + Voice + CoachMarks + TTS)"]
+        DictFrag["DictionaryFragment (Persistent WebView + Shimmer)"]
+        OcrSheet["OcrScanDialogFragment (Highlighted Image + Chips)"]
+        History["HistoryFragment"]
+        Favorites["FavoritesFragment (Offline Notes)"]
+        Flashcards["FlashcardsFragment (3D Flip Study)"]
+        DictOrder["DictionariesOrderFragment (Drag & Custom URL)"]
+        Settings["SettingsFragment (Language, Theme, ML Models)"]
+    end
 
-    Main --> SmartML["SmartMlHelper (ML Kit OCR + Language ID + Offline Translation)"]
-    Main --> OcrSheet["OcrScanDialogFragment (Highlighted Image + Tappable Word Chips)"]
-    Main --> Pager["ViewPager2 + Smart NestedWebViewHost"]
-    Pager --> DictFrag["DictionaryFragment (Persistent WebView + Shimmer + Dark Mode)"]
+    subgraph VM ["ViewModel Layer (Reactive StateFlow)"]
+        MainVM["MainViewModel (AndroidViewModel + StateFlow)"]
+    end
 
-    Main --> Overlays["Overlay Screens"]
-    Overlays --> History["HistoryFragment"]
-    Overlays --> Favorites["FavoritesFragment (Offline Notes + Undo Delete)"]
-    Overlays --> Flashcards["FlashcardsFragment (3D Flip Study)"]
-    Overlays --> DictOrder["DictionariesOrderFragment (Drag & Custom URL)"]
-    Overlays --> Settings["SettingsFragment (Language, Theme, ML Models, WebView Controls)"]
-    Settings --> About["AboutActivity (Scholarly About & Share)"]
+    subgraph Model ["Model & Repository Layer"]
+        Repo["MultiDictRepository"]
+        Prefs["AppPreferences & AppearancePrefs"]
+        DictRepo["DictionaryRepository (17+ Sources)"]
+        Wiki["WiktionarySuggestionClient (OpenSearch API)"]
+        SmartML["SmartMlHelper (ML Kit OCR + Lang ID + Offline Translate)"]
+    end
+
+    View -->|User Intents & Collects StateFlow| MainVM
+    MainVM --> Repo
+    Repo --> Prefs
+    Repo --> DictRepo
+    Repo --> Wiki
+    Repo --> SmartML
 ```
 
 ---

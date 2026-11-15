@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,16 +20,17 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Collections
 
 /**
- * Dictionary Manager ("Dictionaries / Wörterbücher"):
- * - Show/hide checkboxes for each dictionary
- * - Drag handles (ItemTouchHelper) and tonal up-arrow button to reorder
- * - "+ Add custom dictionary" button with Name + URL (must contain {q}) validation
+ * MVVM View for Dictionary Manager ("Dictionaries / Wörterbücher"):
+ * Uses [MainViewModel] to reorder, enable/disable, and add custom `{q}` dictionaries.
  */
 class DictionariesOrderFragment : Fragment() {
 
     private var _binding: FragmentDictionariesOrderBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    }
     private val items = mutableListOf<Dictionary>()
     private lateinit var orderAdapter: OrderAdapter
     private lateinit var touchHelper: ItemTouchHelper
@@ -45,8 +47,9 @@ class DictionariesOrderFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.refreshDictionariesFromStorage()
         items.clear()
-        items.addAll(AppPreferences.getAllOrderedDictionaries(requireContext()))
+        items.addAll(viewModel.allOrderedDictionaries.value)
 
         binding.btnBackDictionaries.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
@@ -110,10 +113,7 @@ class DictionariesOrderFragment : Fragment() {
                     return@setOnClickListener
                 }
 
-                val ctx = requireContext()
-                val newDict = AppPreferences.addCustomDictionary(ctx, name, url)
-                AppPreferences.setDictionaryEnabled(ctx, newDict.name, true)
-
+                val newDict = viewModel.addCustomDictionary(name, url)
                 items.removeAll { d -> d.name.equals(newDict.name, ignoreCase = true) }
                 items.add(newDict)
                 orderAdapter.notifyDataSetChanged()
@@ -134,8 +134,7 @@ class DictionariesOrderFragment : Fragment() {
     }
 
     private fun persistChanges() {
-        val ctx = context ?: return
-        AppPreferences.saveDictionaryOrder(ctx, items)
+        viewModel.saveDictionaryOrder(items)
         (activity as? MainActivity)?.onDictionaryOrderChanged()
     }
 
@@ -180,7 +179,7 @@ class DictionariesOrderFragment : Fragment() {
                     DictionaryRepository.getBadgeTextColor(ctx, dictionary)
                 )
 
-                val isEnabled = AppPreferences.isDictionaryEnabled(ctx, dictionary.name)
+                val isEnabled = viewModel.repository.isDictionaryEnabled(dictionary.name)
                 itemBinding.cbEnabled.setOnCheckedChangeListener(null)
                 itemBinding.cbEnabled.isChecked = isEnabled
                 itemBinding.tvOrderName.alpha = if (isEnabled) 1.0f else 0.5f
@@ -190,7 +189,7 @@ class DictionariesOrderFragment : Fragment() {
 
                 itemBinding.cbEnabled.setOnCheckedChangeListener { buttonView, isChecked ->
                     if (!isChecked) {
-                        val enabledCount = items.count { AppPreferences.isDictionaryEnabled(ctx, it.name) }
+                        val enabledCount = items.count { viewModel.repository.isDictionaryEnabled(it.name) }
                         if (enabledCount <= 1) {
                             buttonView.isChecked = true
                             Toast.makeText(ctx, R.string.at_least_one_dictionary, Toast.LENGTH_SHORT).show()
@@ -198,7 +197,7 @@ class DictionariesOrderFragment : Fragment() {
                         }
                     }
                     AppPreferences.vibrateIfEnabled(buttonView)
-                    AppPreferences.setDictionaryEnabled(ctx, dictionary.name, isChecked)
+                    viewModel.setDictionaryEnabled(dictionary.name, isChecked)
                     itemBinding.tvOrderName.alpha = if (isChecked) 1.0f else 0.5f
                     itemBinding.tvOrderBadge.alpha = if (isChecked) 1.0f else 0.5f
                     (activity as? MainActivity)?.onDictionaryOrderChanged()

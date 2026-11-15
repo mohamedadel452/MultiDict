@@ -8,25 +8,31 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.multidict.databinding.FragmentFavoritesBinding
 import com.example.multidict.databinding.ItemFavoriteRowBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 
 /**
- * Displays the user's saved favorite words along with their offline personal notes/meanings.
- * - Tap a word to search it immediately
- * - Tap the edit icon (✎) to attach/edit an offline personal note
- * - Swipe left or right to delete from favorites
+ * MVVM View for Favorites & Offline Personal Notes:
+ * Observes [MainViewModel.favoritesList] and delegates note editing and swipe deletion to [MainViewModel].
  */
 class FavoritesFragment : Fragment() {
 
     private var _binding: FragmentFavoritesBinding? = null
     private val binding get() = _binding!!
 
-    private val favoriteItems = mutableListOf<String>()
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    }
+    private val favoriteItems = mutableListOf<FavoriteWordItem>()
     private lateinit var favoritesAdapter: FavoritesAdapter
 
     override fun onCreateView(
@@ -41,8 +47,7 @@ class FavoritesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        favoriteItems.clear()
-        favoriteItems.addAll(AppPreferences.getFavorites(requireContext()))
+        viewModel.refreshFavorites()
 
         binding.btnBackFavorites.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
@@ -66,22 +71,28 @@ class FavoritesFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val pos = viewHolder.bindingAdapterPosition
                 if (pos in favoriteItems.indices) {
-                    val removedWord = favoriteItems.removeAt(pos)
-                    AppPreferences.removeFavorite(requireContext(), removedWord)
-                    favoritesAdapter.notifyItemRemoved(pos)
-                    updateEmptyState()
+                    val removedItem = favoriteItems[pos]
+                    viewModel.removeFavorite(removedItem.word)
                     (activity as? MainActivity)?.updateFavoriteIcon()
                 }
             }
         })
         swipeHelper.attachToRecyclerView(binding.rvFavorites)
 
-        updateEmptyState()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.favoritesList.collect { updatedFavorites ->
+                    favoriteItems.clear()
+                    favoriteItems.addAll(updatedFavorites)
+                    favoritesAdapter.notifyDataSetChanged()
+                    updateEmptyState()
+                }
+            }
+        }
     }
 
-    private fun showEditNoteDialog(word: String, position: Int) {
+    private fun showEditNoteDialog(item: FavoriteWordItem) {
         val ctx = requireContext()
-        val currentNote = AppPreferences.getWordNote(ctx, word)
 
         val container = FrameLayout(ctx).apply {
             val pad = (20 * resources.displayMetrics.density).toInt()
@@ -89,7 +100,7 @@ class FavoritesFragment : Fragment() {
         }
         val input = EditText(ctx).apply {
             hint = getString(R.string.edit_note_hint)
-            setText(currentNote)
+            setText(item.note)
             setTextColor(ContextCompat.getColor(ctx, R.color.text_primary))
             setHintTextColor(ContextCompat.getColor(ctx, R.color.text_hint))
             setBackgroundResource(R.drawable.bg_search_input)
@@ -101,14 +112,11 @@ class FavoritesFragment : Fragment() {
         container.addView(input)
 
         MaterialAlertDialogBuilder(ctx)
-            .setTitle(getString(R.string.edit_note_title, word))
+            .setTitle(getString(R.string.edit_note_title, item.word))
             .setView(container)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.save) { _, _ ->
-                AppPreferences.setWordNote(ctx, word, input.text.toString())
-                if (position in favoriteItems.indices) {
-                    favoritesAdapter.notifyItemChanged(position)
-                }
+                viewModel.updateWordNote(item.word, input.text.toString())
             }
             .show()
     }
@@ -146,13 +154,11 @@ class FavoritesFragment : Fragment() {
             private val itemBinding: ItemFavoriteRowBinding
         ) : RecyclerView.ViewHolder(itemBinding.root) {
 
-            fun bind(word: String, position: Int) {
-                val ctx = itemBinding.root.context
-                itemBinding.tvFavoriteWord.text = word
+            fun bind(item: FavoriteWordItem, position: Int) {
+                itemBinding.tvFavoriteWord.text = item.word
 
-                val note = AppPreferences.getWordNote(ctx, word)
-                if (note.isNotEmpty()) {
-                    itemBinding.tvFavoriteNote.text = note
+                if (item.note.isNotEmpty()) {
+                    itemBinding.tvFavoriteNote.text = item.note
                     itemBinding.tvFavoriteNote.alpha = 1.0f
                 } else {
                     itemBinding.tvFavoriteNote.text = getString(R.string.favorite_note_placeholder)
@@ -163,16 +169,13 @@ class FavoritesFragment : Fragment() {
 
                 itemBinding.rowFavoriteRoot.setOnClickListener {
                     AppPreferences.vibrateIfEnabled(it)
-                    (activity as? MainActivity)?.searchWordFromList(word)
+                    (activity as? MainActivity)?.searchWordFromList(item.word)
                     parentFragmentManager.popBackStack()
                 }
 
                 itemBinding.btnEditNote.setOnClickListener {
-                    val pos = bindingAdapterPosition
-                    if (pos != RecyclerView.NO_POSITION) {
-                        AppPreferences.vibrateIfEnabled(it)
-                        showEditNoteDialog(word, pos)
-                    }
+                    AppPreferences.vibrateIfEnabled(it)
+                    showEditNoteDialog(item)
                 }
             }
         }

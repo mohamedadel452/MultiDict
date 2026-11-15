@@ -7,25 +7,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.multidict.databinding.DialogOcrResultsBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
 /**
- * Bottom sheet displaying the captured/picked image with tappable highlighted word bounding boxes
- * and tappable word chips recognized via ML Kit On-Device Text Recognition.
- * Supports single-tap word lookup and multi-word phrase selection.
+ * MVVM View for Camera / Image OCR Scan:
+ * Observes [MainViewModel.ocrState] and delegates ML Kit text recognition & phrase selection to [MainViewModel].
  */
 class OcrScanDialogFragment : BottomSheetDialogFragment() {
 
     private var _binding: DialogOcrResultsBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    }
     private var imageUri: Uri? = null
-    private val selectedPhraseWords = LinkedHashSet<String>()
     private val chipMap = mutableMapOf<String, Chip>()
+    private var populatedWordsList: List<String> = emptyList()
 
     companion object {
         private const val ARG_IMAGE_URI = "arg_image_uri"
@@ -68,15 +73,12 @@ class OcrScanDialogFragment : BottomSheetDialogFragment() {
             AppPreferences.vibrateIfEnabled(it)
             val newState = !binding.swPhraseMode.isChecked
             binding.swPhraseMode.isChecked = newState
-            if (!newState) {
-                selectedPhraseWords.clear()
-                syncSelectionState()
-            }
+            viewModel.setOcrPhraseMode(newState)
         }
 
         binding.btnSearchPhrase.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
-            val phrase = selectedPhraseWords.joinToString(" ").trim()
+            val phrase = viewModel.ocrState.value.selectedPhraseWords.joinToString(" ").trim()
             if (phrase.isNotEmpty()) {
                 (activity as? MainActivity)?.onSmartInputReceived(phrase)
                 dismissAllowingStateLoss()
@@ -94,27 +96,46 @@ class OcrScanDialogFragment : BottomSheetDialogFragment() {
         }
 
         binding.ivOcrPreview.setImageURI(targetUri)
+        viewModel.recognizeOcrImage(targetUri)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            val result = SmartMlHelper.recognizeTextFromUri(requireContext(), targetUri)
-            val b = _binding ?: return@launch
-            b.layoutOcrLoading.visibility = View.GONE
-
-            if (result == null) {
-                showErrorState()
-                return@launch
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.ocrState.collect { state ->
+                    renderOcrState(state)
+                }
             }
+        }
+    }
 
-            if (result.uniqueWords.isEmpty()) {
-                b.tvOcrEmpty.setText(R.string.ocr_empty_result)
-                b.tvOcrEmpty.visibility = View.VISIBLE
-                return@launch
-            }
+    private fun renderOcrState(state: OcrUiState) {
+        val b = _binding ?: return
+        b.layoutOcrLoading.visibility = if (state.isLoading) View.VISIBLE else View.GONE
 
+        if (state.isLoading) return
+
+        if (state.hasError || state.scanResult == null) {
+            showErrorState()
+            return
+        }
+
+        val result = state.scanResult
+        if (result.uniqueWords.isEmpty()) {
+            b.tvOcrEmpty.setText(R.string.ocr_empty_result)
+            b.tvOcrEmpty.visibility = View.VISIBLE
+            b.scrollOcrChips.visibility = View.GONE
+            return
+        }
+
+        b.tvOcrEmpty.visibility = View.GONE
+        b.scrollOcrChips.visibility = View.VISIBLE
+
+        if (populatedWordsList != result.uniqueWords) {
+            populatedWordsList = result.uniqueWords
             b.ocrHighlightOverlay.setOcrData(result.imageWidth, result.imageHeight, result.words)
             populateWordChips(result.uniqueWords)
-            b.scrollOcrChips.visibility = View.VISIBLE
         }
+
+        syncSelectionUi(state.selectedPhraseWords)
     }
 
     private fun populateWordChips(words: List<String>) {
@@ -149,24 +170,17 @@ class OcrScanDialogFragment : BottomSheetDialogFragment() {
     private fun handleWordTap(word: String) {
         val b = _binding ?: return
         if (!b.swPhraseMode.isChecked) {
-            // Immediate single-word search
             (activity as? MainActivity)?.onSmartInputReceived(word)
             dismissAllowingStateLoss()
         } else {
-            // Multi-word phrase builder
-            if (selectedPhraseWords.contains(word)) {
-                selectedPhraseWords.remove(word)
-            } else {
-                selectedPhraseWords.add(word)
-            }
-            syncSelectionState()
+            viewModel.toggleOcrPhraseWord(word)
         }
     }
 
-    private fun syncSelectionState() {
+    private fun syncSelectionUi(selectedWords: Set<String>) {
         val ctx = context ?: return
         val b = _binding ?: return
-        b.ocrHighlightOverlay.setSelectedWords(selectedPhraseWords)
+        b.ocrHighlightOverlay.setSelectedWords(selectedWords)
 
         val selectedBg = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.primary_container))
         val normalBg = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.surface_container))
@@ -174,14 +188,14 @@ class OcrScanDialogFragment : BottomSheetDialogFragment() {
         val normalStroke = ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.outline))
 
         for ((word, chip) in chipMap) {
-            val isSel = selectedPhraseWords.contains(word)
+            val isSel = selectedWords.contains(word)
             chip.isChecked = isSel
             chip.chipBackgroundColor = if (isSel) selectedBg else normalBg
             chip.chipStrokeColor = if (isSel) selectedStroke else normalStroke
         }
 
-        if (selectedPhraseWords.isNotEmpty()) {
-            val phrase = selectedPhraseWords.joinToString(" ")
+        if (selectedWords.isNotEmpty()) {
+            val phrase = selectedWords.joinToString(" ")
             b.btnSearchPhrase.text = getString(R.string.ocr_search_phrase_btn, phrase)
             b.btnSearchPhrase.visibility = View.VISIBLE
         } else {

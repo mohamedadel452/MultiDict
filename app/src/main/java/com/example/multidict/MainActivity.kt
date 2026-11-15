@@ -45,7 +45,10 @@ import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -61,6 +64,10 @@ import java.util.Locale
 import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
+
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(this)[MainViewModel::class.java]
+    }
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var tabAdapter: DictionaryAdapter
@@ -79,15 +86,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var autoSearchRunnable: Runnable? = null
     private var suggestionJob: Job? = null
-    private var smartMlJob: Job? = null
 
     // Phase 9: Voice Search & OCR state
     private var speechRecognizer: SpeechRecognizer? = null
     private var isVoiceListening: Boolean = false
     private var hasRequestedAudioPermissionBefore: Boolean = false
     private var pendingCameraPhotoUri: Uri? = null
-    private var dismissedDetectedWord: String = ""
-    private var lastDetectedLangCode: String = AppPreferences.ML_LANG_DE
 
     private val requestAudioPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -165,7 +169,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         setupEdgeToEdgeInsets()
 
         dictionaries.clear()
-        dictionaries.addAll(AppPreferences.getOrderedDictionaries(this))
+        dictionaries.addAll(viewModel.dictionaries.value)
 
         restoreState(savedInstanceState)
         tts = TextToSpeech(this, this)
@@ -177,10 +181,43 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         setupBottomTabs()
         setupViewPager()
         setupBackNavigation()
+        observeViewModelState()
 
         handleIncomingIntent(intent)
         if (currentWord.isNotBlank()) {
             triggerSmartMlAnalysis(currentWord, allowAutoSwitchTab = false)
+        }
+    }
+
+    private fun observeViewModelState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    viewModel.isCurrentWordFavorite.collect { isFav ->
+                        val starItem = binding.toolbar.menu.findItem(R.id.action_toggle_favorite)
+                        starItem?.setIcon(
+                            if (isFav) R.drawable.ic_star_filled else R.drawable.ic_star_border
+                        )
+                    }
+                }
+                launch {
+                    viewModel.selectedDictIndex.collect { newIdx ->
+                        if (newIdx in dictionaries.indices && newIdx != selectedIndex) {
+                            selectedIndex = newIdx
+                            tabAdapter.selectPosition(newIdx)
+                            scrollToSelectedTab(smooth = true)
+                            if (binding.viewPager.currentItem != newIdx) {
+                                binding.viewPager.setCurrentItem(newIdx, true)
+                            }
+                        }
+                    }
+                }
+                launch {
+                    viewModel.smartMlState.collect { mlState ->
+                        renderSmartMlState(mlState)
+                    }
+                }
+            }
         }
     }
 
@@ -353,16 +390,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
      * Called by [DictionariesOrderFragment] whenever the user reorders, enables/disables, or adds a dictionary.
      */
     fun onDictionaryOrderChanged() {
-        val currentDictName = dictionaries.getOrNull(selectedIndex)?.name
-        val updatedList = AppPreferences.getOrderedDictionaries(this)
+        viewModel.refreshDictionariesFromStorage()
 
         dictionaries.clear()
-        dictionaries.addAll(updatedList)
-
-        val newSelectedIdx = dictionaries.indexOfFirst { it.name == currentDictName }
-            .takeIf { it >= 0 } ?: 0
-        selectedIndex = newSelectedIdx
-        savePreferences()
+        dictionaries.addAll(viewModel.dictionaries.value)
+        selectedIndex = viewModel.selectedDictIndex.value
 
         binding.viewPager.offscreenPageLimit = dictionaries.size.coerceAtLeast(1)
         pagerAdapter.notifyDataSetChanged()
@@ -422,10 +454,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             currentWord = savedInstanceState.getString(KEY_LAST_WORD, "") ?: ""
             selectedIndex = savedInstanceState.getInt(KEY_LAST_DICT_INDEX, 0)
         } else {
-            currentWord = prefs.getString(KEY_LAST_WORD, "") ?: ""
-            selectedIndex = prefs.getInt(KEY_LAST_DICT_INDEX, 0)
+            currentWord = prefs.getString(KEY_LAST_WORD, viewModel.currentWord.value) ?: ""
+            selectedIndex = prefs.getInt(KEY_LAST_DICT_INDEX, viewModel.selectedDictIndex.value)
         }
         selectedIndex = selectedIndex.coerceIn(0, (dictionaries.size - 1).coerceAtLeast(0))
+        viewModel.restoreOrUpdateSearchState(currentWord, selectedIndex)
     }
 
     private fun savePreferences() {
@@ -434,6 +467,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             .putString(KEY_LAST_WORD, currentWord)
             .putInt(KEY_LAST_DICT_INDEX, selectedIndex)
             .apply()
+        viewModel.restoreOrUpdateSearchState(currentWord, selectedIndex)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -458,7 +492,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                         if (AppPreferences.isVibrateOnClickEnabled(this)) {
                             binding.toolbar.performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
                         }
-                        AppPreferences.toggleFavorite(this, currentWord)
+                        viewModel.toggleCurrentWordFavorite()
                         updateFavoriteIcon()
                     }
                     true
@@ -590,11 +624,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         updateClearButtonVisibility(true)
 
         currentWord = SAMPLE_WORD
-        AppPreferences.addHistoryWord(this, SAMPLE_WORD)
+        viewModel.submitSearchWord(SAMPLE_WORD, allowAutoSwitchTab = false)
         updateToolbarTitle()
         updateFavoriteIcon()
         savePreferences()
-        triggerSmartMlAnalysis(SAMPLE_WORD, allowAutoSwitchTab = false)
         loadWordInAllFragments()
 
         Snackbar.make(
@@ -833,18 +866,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             currentWord = typedWord
         }
 
-        // Save to search history (newest first, no duplicates, max 200)
-        if (currentWord.isNotEmpty()) {
-            AppPreferences.addHistoryWord(this, currentWord)
-        }
-
+        // Delegate search & history persistence + Smart ML analysis to MainViewModel
+        viewModel.submitSearchWord(currentWord, allowAutoSwitchTab = true)
         updateToolbarTitle()
         updateFavoriteIcon()
         savePreferences()
-
-        if (currentWord.isNotEmpty()) {
-            triggerSmartMlAnalysis(currentWord, allowAutoSwitchTab = true)
-        }
 
         if (hideSoftKeyboard) {
             hideKeyboard()
@@ -1070,25 +1096,23 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // 5. Dismissible Detected Language Chip
         binding.btnDismissDetectedLang.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
-            dismissedDetectedWord = currentWord
-            binding.cardDetectedLang.visibility = View.GONE
+            viewModel.dismissDetectedLanguageBanner()
         }
 
         // 6. Collapsible Quick Translation Card Header
         binding.rowQuickTranslationHeader.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
-            val newExpanded = !AppPreferences.isQuickTranslationExpanded(this)
-            AppPreferences.setQuickTranslationExpanded(this, newExpanded)
-            syncQuickTranslationExpandUi(animate = true)
+            val expanded = viewModel.toggleQuickTranslationExpanded()
+            syncQuickTranslationExpandUi(expanded = expanded, animate = true)
         }
 
         // 7. Download On-Device Model button inside Quick Translation Card
         binding.btnQuickTranslateDownload.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
-            val targetLang = resolveEffectiveTargetLanguage(lastDetectedLangCode)
-            val pairLabel = "${AppPreferences.getMlLanguageDisplayName(this, lastDetectedLangCode)} ↔ " +
-                AppPreferences.getMlLanguageDisplayName(this, targetLang)
-            promptAndDownloadPairModels(lastDetectedLangCode, targetLang, pairLabel)
+            val mlState = viewModel.smartMlState.value
+            val pairLabel = "${AppPreferences.getMlLanguageDisplayName(this, mlState.sourceLangCode)} ↔ " +
+                AppPreferences.getMlLanguageDisplayName(this, mlState.targetLangCode)
+            promptAndDownloadPairModels(mlState.sourceLangCode, mlState.targetLangCode, pairLabel)
         }
     }
 
@@ -1373,7 +1397,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         searchWordFromList(wordOrPhrase)
     }
 
-    // --- Smart Language Detection & Instant On-Device Translation ---
+    // --- Smart Language Detection & Instant On-Device Translation (MVVM State Rendering) ---
 
     fun onSmartMlSettingsChanged() {
         if (currentWord.isNotBlank()) {
@@ -1385,74 +1409,58 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     private fun triggerSmartMlAnalysis(word: String, allowAutoSwitchTab: Boolean) {
-        val trimmed = word.trim()
-        if (trimmed.isEmpty()) {
+        viewModel.analyzeSmartMl(word, allowAutoSwitchTab = allowAutoSwitchTab)
+    }
+
+    private fun renderSmartMlState(state: SmartMlUiState) {
+        // 1. Detected Language Banner
+        if (state.showDetectedBanner) {
+            val langDisplay = AppPreferences.getMlLanguageDisplayName(this, state.detectedLangCode)
+            binding.tvDetectedLanguage.text = getString(R.string.detected_language_format, langDisplay)
+
+            val suggestedIdx = state.suggestedDictIndex
+            val suggestedName = state.suggestedDictName
+            if (suggestedIdx != null && !suggestedName.isNullOrBlank() && suggestedIdx != selectedIndex) {
+                binding.btnSwitchDetectedDict.text =
+                    getString(R.string.detected_language_switch_action, suggestedName)
+                binding.btnSwitchDetectedDict.visibility = View.VISIBLE
+                binding.btnSwitchDetectedDict.setOnClickListener {
+                    AppPreferences.vibrateIfEnabled(it)
+                    switchToDictionaryTab(suggestedIdx)
+                    viewModel.clearSuggestedDictPrompt()
+                }
+            } else {
+                binding.btnSwitchDetectedDict.visibility = View.GONE
+            }
+            binding.cardDetectedLang.visibility = View.VISIBLE
+        } else {
             binding.cardDetectedLang.visibility = View.GONE
+        }
+
+        // 2. Quick On-Device Translation Card
+        if (!state.showQuickTranslationCard) {
             binding.cardQuickTranslation.visibility = View.GONE
             return
         }
 
-        smartMlJob?.cancel()
-        smartMlJob = lifecycleScope.launch {
-            val detectedLang = SmartMlHelper.identifyLanguage(trimmed) ?: AppPreferences.ML_LANG_DE
-            lastDetectedLangCode = detectedLang
+        val sourceLabel = AppPreferences.getMlLanguageDisplayName(this, state.sourceLangCode)
+        val targetLabel = AppPreferences.getMlLanguageDisplayName(this, state.targetLangCode)
+        binding.tvQuickTranslationHeader.text =
+            getString(R.string.quick_translation_title, sourceLabel, targetLabel)
+        binding.cardQuickTranslation.visibility = View.VISIBLE
+        syncQuickTranslationExpandUi(expanded = state.isQuickTranslationExpanded, animate = false)
 
-            // 1. Smart Language Detection UI & Dictionary Routing
-            if (AppPreferences.isSmartLanguageDetectionEnabled(this@MainActivity)) {
-                val langDisplay = AppPreferences.getMlLanguageDisplayName(this@MainActivity, detectedLang)
-                binding.tvDetectedLanguage.text = getString(R.string.detected_language_format, langDisplay)
-
-                when (detectedLang) {
-                    AppPreferences.ML_LANG_AR -> {
-                        binding.btnSwitchDetectedDict.visibility = View.GONE
-                        if (allowAutoSwitchTab) {
-                            val arabicDictIdx = dictionaries.indexOfFirst {
-                                it.name.equals("ArabDict", ignoreCase = true) ||
-                                    it.name.equals("PONS", ignoreCase = true) ||
-                                    it.name.equals("Langenscheidt", ignoreCase = true)
-                            }
-                            if (arabicDictIdx >= 0 && arabicDictIdx != selectedIndex) {
-                                switchToDictionaryTab(arabicDictIdx)
-                            }
-                        }
-                    }
-
-                    AppPreferences.ML_LANG_EN -> {
-                        val englishDictIdx = dictionaries.indexOfFirst {
-                            it.name.equals("PONS", ignoreCase = true) ||
-                                it.name.equals("FreeDic", ignoreCase = true) ||
-                                it.name.equals("Langenscheidt", ignoreCase = true)
-                        }
-                        if (englishDictIdx >= 0 && englishDictIdx != selectedIndex) {
-                            val targetDictName = dictionaries[englishDictIdx].name
-                            binding.btnSwitchDetectedDict.text =
-                                getString(R.string.detected_language_switch_action, targetDictName)
-                            binding.btnSwitchDetectedDict.visibility = View.VISIBLE
-                            binding.btnSwitchDetectedDict.setOnClickListener {
-                                AppPreferences.vibrateIfEnabled(it)
-                                switchToDictionaryTab(englishDictIdx)
-                                binding.btnSwitchDetectedDict.visibility = View.GONE
-                            }
-                        } else {
-                            binding.btnSwitchDetectedDict.visibility = View.GONE
-                        }
-                    }
-
-                    else -> {
-                        // German: keep current tab
-                        binding.btnSwitchDetectedDict.visibility = View.GONE
-                    }
-                }
-
-                if (!trimmed.equals(dismissedDetectedWord, ignoreCase = true)) {
-                    binding.cardDetectedLang.visibility = View.VISIBLE
-                }
+        if (!state.modelsReady) {
+            binding.tvQuickTranslationResult.visibility = View.GONE
+            binding.layoutQuickTranslateDownload.visibility = View.VISIBLE
+        } else {
+            binding.layoutQuickTranslateDownload.visibility = View.GONE
+            binding.tvQuickTranslationResult.visibility = View.VISIBLE
+            if (state.isTranslating) {
+                binding.tvQuickTranslationResult.setText(R.string.quick_translation_translating)
             } else {
-                binding.cardDetectedLang.visibility = View.GONE
+                binding.tvQuickTranslationResult.text = state.translatedText
             }
-
-            // 2. Instant On-Device Translation Card
-            updateQuickTranslationCard(trimmed, detectedLang)
         }
     }
 
@@ -1467,55 +1475,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         }
     }
 
-    private fun resolveEffectiveTargetLanguage(sourceLang: String): String {
-        val preferredTarget = AppPreferences.getTranslationTargetLanguage(this)
-        return if (preferredTarget.equals(sourceLang, ignoreCase = true)) {
-            if (sourceLang.equals(AppPreferences.ML_LANG_DE, ignoreCase = true)) {
-                AppPreferences.ML_LANG_AR
-            } else {
-                AppPreferences.ML_LANG_DE
-            }
-        } else {
-            preferredTarget
-        }
-    }
-
-    private suspend fun updateQuickTranslationCard(word: String, sourceLang: String) {
-        if (!AppPreferences.isQuickTranslationEnabled(this)) {
-            binding.cardQuickTranslation.visibility = View.GONE
-            return
-        }
-
-        val targetLang = resolveEffectiveTargetLanguage(sourceLang)
-        val sourceLabel = AppPreferences.getMlLanguageDisplayName(this, sourceLang)
-        val targetLabel = AppPreferences.getMlLanguageDisplayName(this, targetLang)
-
-        binding.tvQuickTranslationHeader.text =
-            getString(R.string.quick_translation_title, sourceLabel, targetLabel)
-        binding.cardQuickTranslation.visibility = View.VISIBLE
-        syncQuickTranslationExpandUi(animate = false)
-
-        val modelsReady = SmartMlHelper.arePairModelsDownloaded(sourceLang, targetLang)
-        if (!modelsReady) {
-            binding.tvQuickTranslationResult.visibility = View.GONE
-            binding.layoutQuickTranslateDownload.visibility = View.VISIBLE
-            return
-        }
-
-        binding.layoutQuickTranslateDownload.visibility = View.GONE
-        binding.tvQuickTranslationResult.visibility = View.VISIBLE
-        binding.tvQuickTranslationResult.setText(R.string.quick_translation_translating)
-
-        val translated = SmartMlHelper.translateOnDevice(word, sourceLang, targetLang)
-        if (!translated.isNullOrBlank()) {
-            binding.tvQuickTranslationResult.text = translated
-        } else {
-            binding.tvQuickTranslationResult.text = word
-        }
-    }
-
-    private fun syncQuickTranslationExpandUi(animate: Boolean) {
-        val expanded = AppPreferences.isQuickTranslationExpanded(this)
+    private fun syncQuickTranslationExpandUi(
+        expanded: Boolean = AppPreferences.isQuickTranslationExpanded(this),
+        animate: Boolean
+    ) {
         binding.layoutQuickTranslationBody.visibility = if (expanded) View.VISIBLE else View.GONE
         val targetRotation = if (expanded) 180f else 0f
         if (animate && AppPreferences.areAnimationsEnabled(this)) {
@@ -1597,7 +1560,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onDestroy() {
         autoSearchRunnable?.let { mainHandler.removeCallbacks(it) }
         suggestionJob?.cancel()
-        smartMlJob?.cancel()
         try {
             speechRecognizer?.cancel()
             speechRecognizer?.destroy()

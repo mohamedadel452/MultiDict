@@ -5,21 +5,29 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.multidict.databinding.FragmentHistoryBinding
 import com.example.multidict.databinding.ItemWordRowBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 
 /**
- * Displays the user's searched words (newest first, max 200).
- * Tapping a word searches it immediately; "Clear history" shows a Material 3 confirmation dialog.
+ * MVVM View for Search History:
+ * Observes [MainViewModel.historyList] and delegates word selection and history clearing to [MainViewModel].
  */
 class HistoryFragment : Fragment() {
 
     private var _binding: FragmentHistoryBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: MainViewModel by lazy {
+        ViewModelProvider(requireActivity())[MainViewModel::class.java]
+    }
     private val historyItems = mutableListOf<String>()
     private lateinit var historyAdapter: HistoryAdapter
 
@@ -35,8 +43,7 @@ class HistoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        historyItems.clear()
-        historyItems.addAll(AppPreferences.getHistory(requireContext()))
+        viewModel.refreshHistory()
 
         binding.btnBackHistory.setOnClickListener {
             AppPreferences.vibrateIfEnabled(it)
@@ -54,7 +61,16 @@ class HistoryFragment : Fragment() {
         binding.rvHistory.layoutManager = LinearLayoutManager(requireContext())
         binding.rvHistory.adapter = historyAdapter
 
-        updateEmptyState()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.historyList.collect { updatedHistory ->
+                    historyItems.clear()
+                    historyItems.addAll(updatedHistory)
+                    historyAdapter.notifyDataSetChanged()
+                    updateEmptyState()
+                }
+            }
+        }
     }
 
     private fun showClearHistoryDialog() {
@@ -63,10 +79,7 @@ class HistoryFragment : Fragment() {
             .setMessage(R.string.clear_history_confirm_message)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.clear) { _, _ ->
-                AppPreferences.clearHistory(requireContext())
-                historyItems.clear()
-                historyAdapter.notifyDataSetChanged()
-                updateEmptyState()
+                viewModel.clearHistory()
             }
             .show()
     }
