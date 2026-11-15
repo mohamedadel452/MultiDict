@@ -502,7 +502,7 @@
                     android:layout_height="112dp"
                     android:layout_marginTop="@dimen/space_16">
 
-                    <com.example.multidict.VoicePulseView
+                    <com.example.multidict.ui.widget.VoicePulseView
                         android:id="@+id/voicePulseView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
@@ -541,7 +541,7 @@
     </FrameLayout>
 
     <!-- 8. Interactive Coach Mark Tour Overlay -->
-    <com.example.multidict.CoachMarkOverlay
+    <com.example.multidict.ui.widget.CoachMarkOverlay
         android:id="@+id/coachMarkOverlay"
         android:layout_width="0dp"
         android:layout_height="0dp"

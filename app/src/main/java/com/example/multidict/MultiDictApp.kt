@@ -1,4 +1,6 @@
-package com.example.multidict
+﻿package com.example.multidict
+
+import com.example.multidict.data.AppearancePrefs
 
 import android.app.Application
 

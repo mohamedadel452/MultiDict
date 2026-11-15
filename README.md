@@ -120,6 +120,48 @@ flowchart TD
     Repo --> SmartML
 ```
 
+### Package & Folder Structure (`com.example.multidict`)
+```text
+app/src/main/java/com/example/multidict/
+├── MultiDictApp.kt                    # Application entry point
+├── model/                             # Domain Models & Immutable UI States
+│   ├── Dictionary.kt                  # Dictionary & DictionaryPalette models
+│   ├── FavoriteWordItem.kt            # Favorite word + personal note model
+│   ├── OcrModels.kt                   # OcrWordItem & OcrScanResult models
+│   └── UiStates.kt                    # SmartMlUiState, FlashcardUiState, OcrUiState
+├── data/                              # Repository & Data Sources
+│   ├── MultiDictRepository.kt         # Unified MVVM Repository
+│   ├── DictionaryRepository.kt        # Built-in 17+ dictionary catalog & badge renderer
+│   ├── AppPreferences.kt              # Local SharedPreferences data source
+│   ├── AppearancePrefs.kt             # Theme & per-app locale persistence
+│   ├── OnboardingPrefs.kt             # Onboarding & coach-mark persistence
+│   ├── WiktionarySuggestionClient.kt  # Remote OpenSearch autocomplete client
+│   └── SmartMlHelper.kt               # On-device ML Kit OCR, Language ID & Translation
+├── viewmodel/                         # ViewModels
+│   └── MainViewModel.kt               # Shared AndroidViewModel with reactive StateFlows
+└── ui/                                # Views (Activities, Fragments, Adapters, Custom Views)
+    ├── MainActivity.kt
+    ├── AboutActivity.kt
+    ├── OnboardingActivity.kt
+    ├── DictionaryFragment.kt
+    ├── DictionariesOrderFragment.kt
+    ├── FavoritesFragment.kt
+    ├── FlashcardsFragment.kt
+    ├── HistoryFragment.kt
+    ├── OcrScanDialogFragment.kt
+    ├── SettingsFragment.kt
+    ├── adapter/
+    │   ├── DictionaryAdapter.kt
+    │   ├── DictionaryPagerAdapter.kt
+    │   ├── OnboardingAdapter.kt
+    │   └── SuggestionAdapter.kt
+    └── widget/
+        ├── CoachMarkOverlay.kt
+        ├── NestedWebViewHost.kt
+        ├── OcrHighlightOverlayView.kt
+        └── VoicePulseView.kt
+```
+
 ---
 
 ## 📦 Installation & Building | التثبيت وطريقة التشغيل

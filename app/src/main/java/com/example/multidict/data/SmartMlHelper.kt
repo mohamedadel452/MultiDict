@@ -1,4 +1,12 @@
-package com.example.multidict
+﻿package com.example.multidict.data
+
+import com.example.multidict.R
+import com.example.multidict.model.*
+import com.example.multidict.data.*
+import com.example.multidict.viewmodel.*
+import com.example.multidict.ui.*
+import com.example.multidict.ui.adapter.*
+import com.example.multidict.ui.widget.*
 
 import android.content.Context
 import android.graphics.Rect
@@ -20,25 +28,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-
-/**
- * Represents a single recognized word from ML Kit OCR along with its bounding box in image coordinates.
- */
-data class OcrWordItem(
-    val cleanedWord: String,
-    val rawText: String,
-    val boundingBox: Rect?
-)
-
-/**
- * Complete result of running on-device ML Kit OCR on an image.
- */
-data class OcrScanResult(
-    val imageWidth: Int,
-    val imageHeight: Int,
-    val words: List<OcrWordItem>,
-    val uniqueWords: List<String>
-)
 
 /**
  * Coroutine-based helper for Phase 9 On-Device Machine Learning:

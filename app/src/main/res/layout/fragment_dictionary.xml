@@ -16,7 +16,7 @@
         android:visibility="gone" />
 
     <!-- WebView + Shimmer skeleton placeholder + Error state overlay wrapped in smart direction lock -->
-    <com.example.multidict.NestedWebViewHost
+    <com.example.multidict.ui.widget.NestedWebViewHost
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -109,6 +109,6 @@
                 android:paddingEnd="@dimen/space_24"
                 android:text="@string/retry" />
         </LinearLayout>
-    </com.example.multidict.NestedWebViewHost>
+    </com.example.multidict.ui.widget.NestedWebViewHost>
 
 </LinearLayout>

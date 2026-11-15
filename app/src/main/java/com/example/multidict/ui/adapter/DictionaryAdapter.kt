@@ -1,4 +1,12 @@
-package com.example.multidict
+﻿package com.example.multidict.ui.adapter
+
+import com.example.multidict.R
+import com.example.multidict.model.*
+import com.example.multidict.data.*
+import com.example.multidict.viewmodel.*
+import com.example.multidict.ui.*
+import com.example.multidict.ui.adapter.*
+import com.example.multidict.ui.widget.*
 
 import android.graphics.Typeface
 import android.view.HapticFeedbackConstants

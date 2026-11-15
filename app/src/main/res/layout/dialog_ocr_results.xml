@@ -61,7 +61,7 @@
                 android:contentDescription="@string/camera_ocr_search"
                 android:scaleType="fitCenter" />
 
-            <com.example.multidict.OcrHighlightOverlayView
+            <com.example.multidict.ui.widget.OcrHighlightOverlayView
                 android:id="@+id/ocrHighlightOverlay"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />

@@ -1,17 +1,17 @@
-package com.example.multidict
+﻿package com.example.multidict.data
+
+import com.example.multidict.R
+import com.example.multidict.model.*
+import com.example.multidict.data.*
+import com.example.multidict.viewmodel.*
+import com.example.multidict.ui.*
+import com.example.multidict.ui.adapter.*
+import com.example.multidict.ui.widget.*
 
 import android.content.Context
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-/**
- * Domain model representing a saved favorite word and its offline personal note.
- */
-data class FavoriteWordItem(
-    val word: String,
-    val note: String
-)
 
 /**
  * MVVM Repository layer unifying local persistence ([AppPreferences], [AppearancePrefs]),

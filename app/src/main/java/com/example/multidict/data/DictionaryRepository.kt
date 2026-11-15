@@ -1,4 +1,12 @@
-package com.example.multidict
+﻿package com.example.multidict.data
+
+import com.example.multidict.R
+import com.example.multidict.model.*
+import com.example.multidict.data.*
+import com.example.multidict.viewmodel.*
+import com.example.multidict.ui.*
+import com.example.multidict.ui.adapter.*
+import com.example.multidict.ui.widget.*
 
 import android.content.Context
 import android.graphics.drawable.GradientDrawable
@@ -6,28 +14,6 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import java.net.URLEncoder
 import kotlin.math.abs
-
-/**
- * Represents a single online dictionary source.
- * [searchUrl] must contain "{q}" where the URL-encoded query word will be inserted.
- */
-data class Dictionary(
-    val name: String,
-    val shortName: String,
-    val searchUrl: String,
-    val homeUrl: String
-) {
-    val stableId: Long get() = name.hashCode().toLong()
-}
-
-/**
- * Pastel gradient color pair + darker hue foreground tone for a dictionary badge.
- */
-data class DictionaryPalette(
-    @ColorRes val startColorRes: Int,
-    @ColorRes val endColorRes: Int,
-    @ColorRes val fgColorRes: Int
-)
 
 /**
  * Central list of dictionaries and their "Ink & Ivory" desaturated pastel palettes.
