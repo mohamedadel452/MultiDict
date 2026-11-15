@@ -22,9 +22,10 @@
 
 ## ✨ Overview | نبذة عن التطبيق
 
-**MultiDict** is a modern, scholarly Android application built for learners of the German language. Instead of opening multiple browser tabs or switching between separate dictionary apps, you type or select a German word **once** and browse definitions, synonyms, collocations, verb conjugations, real-world sentence corpora, audio pronunciations, Arabic translations, and visual imagery across **17+ authoritative dictionaries** simultaneously.
+هل تعبت من فتح عشرات التبويبات والتنقل بين القواميس المختلفة أثناء دراسة اللغة الألمانية؟  
+صممتُ تطبيق **MultiDict** ليجمع لك **أكثر من 17 قاموساً ألمانياً موثوقاً في مكان واحد** — تكتب الكلمة مرة واحدة فقط، وتتصفح معناها، مرادفاتها، تصريفات الأفعال، الأمثلة السياقية، الصور، والنطق الصوتي بضغطة واحدة!
 
-يتيح لك **MultiDict** كتابة الكلمة الألمانية **مرة واحدة فقط** والبحث عنها في أكثر من **17 قاموساً موثوقاً** في نفس اللحظة، والتنقل بينها بلمسة واحدة دون إعادة تحميل الصفحة، مع دعم كامل للغة العربية (RTL)، النطق الصوتي الألماني، الملاحظات بدون إنترنت، والبطاقات التعليمية (Flashcards).
+**MultiDict** is a modern, scholarly Android application built for learners of the German language. Instead of opening multiple browser tabs or switching between separate dictionary apps, you type or select a German word **once** and browse definitions, synonyms, collocations, verb conjugations, real-world sentence corpora, audio pronunciations, Arabic translations, and visual imagery across **17+ authoritative dictionaries** simultaneously.
 
 ---
 
